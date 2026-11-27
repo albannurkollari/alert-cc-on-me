@@ -1,4 +1,4 @@
--- Each T[...] runs in a fresh Lua state with the addon loaded (see run_tests.py).
+-- Each T[...] runs in a fresh Lua state with the addon loaded (see addon_spec.lua).
 T = {}
 local M = TEST
 local S = M.secret

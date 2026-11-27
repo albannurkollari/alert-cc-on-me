@@ -52,8 +52,7 @@ David, Zira and Mark ship with the addon. A voice pack is a small add-on that ca
 
 | Path | Purpose |
 |---|---|
-| `tests/run_tests.py` | Offline test suite: loads the addon under LuaJIT with a WoW API mock that raises on any misuse of secret values (Python 3.14 + `pip install lupa`) |
-| `tests/bench.py` | Micro-benchmark under Lua 5.1 |
+| `tests/run.sh` | luacheck + [busted](https://lunarmodules.github.io/busted/) under Lua 5.1, the addon loaded against a WoW API mock that raises on any misuse of secret values. Uses local `busted`/`luacheck` if installed, otherwise Docker (`tests/Dockerfile`). `tests/run.sh bench` runs the micro-benchmark |
 | `tools/generate_voices.ps1` | Renders voice clips with Windows speech voices and ffmpeg |
 | `install.sh` | Runs the tests, then copies the addon into your AddOns folder (`WOW_ADDONS` overrides the path) |
 
