@@ -1,4 +1,4 @@
--- Each T[...] runs in a fresh Lua state with the addon loaded (see run_tests.py).
+-- Each T[...] runs in a fresh Lua state with the addon loaded (see addon_spec.lua).
 T = {}
 local M = TEST
 local S = M.secret
@@ -581,7 +581,7 @@ T["fuzz: free-text inputs never raise (add/remove/slash/text format)"] = functio
 		end
 		return table.concat(parts)
 	end
-	for i = 1, 3000 do
+	for _ = 1, 3000 do
 		local text = randomText()
 		local ok, err = pcall(ns.SpellList.Add, text)
 		assert(ok, ("Add(%q) raised: %s"):format(text, tostring(err)))

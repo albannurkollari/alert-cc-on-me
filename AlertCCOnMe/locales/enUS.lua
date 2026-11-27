@@ -1,7 +1,7 @@
 local _, ns = ...
 
 ns.L = {
-	Loaded = "v%s loaded. Type /accm for options.",
+	Loaded = "%s loaded. Type /accm for options.",
 	Help = "Commands: /accm (options), test, list, spells, perf, add <id>, remove <id>, unlock|move, lock, reset, probe [spellID], status, sound, on, off",
 	Enabled = "enabled.",
 	Disabled = "disabled.",

@@ -60,8 +60,8 @@ local function HandleSlash(message)
 	elseif command == "spells" then
 		ns.SettingsUI.OpenSpellList()
 	elseif command == "add" then
-		local _, message = ns.SpellList.Add(rest)
-		Util.Print(message)
+		local _, result = ns.SpellList.Add(rest)
+		Util.Print(result)
 	elseif command == "remove" then
 		local spellID = tonumber(rest)
 		if spellID and ns.SpellList.IsListed(spellID) then
@@ -120,6 +120,10 @@ eventFrame:SetScript("OnEvent", function(self, event, arg1)
 		self:RegisterEvent("PLAYER_LOGIN")
 	elseif event == "PLAYER_LOGIN" then
 		local version = C_AddOns.GetAddOnMetadata(addonName, "Version") or "?"
+		-- The packager writes the tag here; a git checkout still has the placeholder.
+		if version:find("^@") then
+			version = "dev"
+		end
 		Util.Print(L.Loaded:format(version))
 	end
 end)
