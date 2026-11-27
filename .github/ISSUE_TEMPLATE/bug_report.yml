@@ -49,7 +49,7 @@ body:
     attributes:
       label: Addon version
       description: 'Printed in chat at login, e.g. "AlertCCOnMe: v0.2.0 loaded".'
-      placeholder: v0.2.0-beta.1
+      placeholder: v0.2.0 or v0.2.0-3-gabc1234
     validations:
       required: true
 

@@ -18,7 +18,7 @@ it matters or what it affects. Link the issue it solves, e.g. "Closes #123".
 
 ## Checklist
 
-- [ ] Commit subjects follow [Conventional Commits](https://www.conventionalcommits.org/); `feat` and `fix` publish a beta when merged
+- [ ] Commit subjects follow [Conventional Commits](https://www.conventionalcommits.org/); they decide the next stable version
 - [ ] No branching on, comparing or doing arithmetic on secret values
 - [ ] User-facing text is in `AlertCCOnMe/locales/enUS.lua`
 - [ ] Fits the [Code of Conduct](../blob/beta/CODE_OF_CONDUCT.md), including Blizzard's add-on rules

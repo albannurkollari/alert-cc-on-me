@@ -1,0 +1,61 @@
+name: Alpha
+
+# Every merge into beta that changes the addon ships as an alpha build, the way DBM,
+# BigWigs, Details!, WeakAuras and Plater ship every push. It is untagged, so the packager
+# versions it from git (e.g. v0.1.0-3-gabc1234), CurseForge and Wago list it in their
+# Alpha channel, and GitHub and WoWInterface (which need a tag) get nothing. Stable
+# releases are tagged from main (release.yml).
+on:
+  push:
+    branches: [beta]
+    # What .pkgmeta keeps out of the package: changing only these ships nothing new.
+    paths-ignore:
+      - ".github/**"
+      - "scripts/**"
+      - "tests/**"
+      - "tools/**"
+      - "templates/**"
+      - "install.sh"
+      - "CONTRIBUTING.md"
+      - "CODE_OF_CONDUCT.md"
+      - ".busted"
+      - ".luacheckrc"
+  workflow_dispatch:
+
+concurrency:
+  group: alpha
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+
+  publish:
+    name: Publish alpha
+    needs: test
+    runs-on: ubuntu-24.04
+    # Holds the CurseForge and Wago tokens.
+    environment: beta
+    env:
+      CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # Merges in quick succession: only the newest commit is uploaded.
+      - id: tip
+        name: Check branch tip
+        run: |
+          if [ "$(git ls-remote origin refs/heads/beta | cut -f1)" = "$GITHUB_SHA" ]; then
+            echo "current=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No upload: beta has moved on; its run uploads the newer build." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - if: steps.tip.outputs.current == 'true'
+        uses: BigWigsMods/packager@v2

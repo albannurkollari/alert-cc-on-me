@@ -59,14 +59,16 @@ David, Zira and Mark ship with the addon. A voice pack is a small add-on that ca
 
 ## Releasing
 
-`beta` is the default branch and takes every PR. `main` holds stable releases. Releases need no manual tagging: every merge works out the next version from the [Conventional Commits](https://www.conventionalcommits.org/) since the last stable release (`feat` → minor, `fix`/`perf` → patch, `!` → major), tags it and publishes it with the [BigWigs packager](https://github.com/BigWigsMods/packager). Merges that hold only `docs`, `chore` or `test` commits publish nothing.
+`beta` is the default branch and takes every PR. `main` holds stable releases. Shipping follows DBM, BigWigs, Details!, WeakAuras and Plater: every change goes out as an untagged **alpha** build, and tags mark **releases** only. Both are built by the [BigWigs packager](https://github.com/BigWigsMods/packager), with no manual tagging.
 
-| Merge into | Publishes | Approval |
-|---|---|---|
-| `beta` | `vX.Y.Z-beta.N` to the beta channel | none |
-| `main` (the promotion PR from `beta`, merge commit) | `vX.Y.Z` to the stable channel | required in the `stable` environment |
+| Merge into | Publishes | Where | Approval |
+|---|---|---|---|
+| `beta` (any change to the addon) | alpha build, versioned from git, e.g. `v0.1.0-3-gabc1234` | Alpha channel on CurseForge and Wago | none |
+| `main` (the promotion PR from `beta`, merge commit) | tag `vX.Y.Z` | CurseForge, Wago, WoWInterface and GitHub Releases | required in the `stable` environment |
 
-After each merge into `beta`, a single `beta` → `main` promotion PR is opened or refreshed. It lists the commits and beta builds waiting for a stable release and the version merging it will publish. Every PR is checked for commit format, luacheck, the busted suite and a package build, which is attached to the run so you can try it in game. Upload tokens (`CF_API_TOKEN`, `WAGO_API_TOKEN`, `WOWI_API_TOKEN`) live in the `beta` and `stable` environments. Every release is also published on GitHub Releases. A weekly workflow keeps the `.toc` `## Interface:` line on Blizzard's current live and PTR builds and opens a `fix(toc)` PR when they change.
+The stable version comes from the [Conventional Commits](https://www.conventionalcommits.org/) since the last release (`feat` → minor, `fix`/`perf` → patch, `!` → major). A promotion that holds only `docs`, `chore` or `test` commits publishes nothing. After each merge into `beta`, a single `beta` → `main` promotion PR is opened or refreshed. It lists the commits waiting for a stable release and the version merging it will publish.
+
+Every PR is checked for commit format, luacheck, the busted suite and a package build, which is attached to the run so you can try it in game. Upload tokens (`CF_API_TOKEN`, `WAGO_API_TOKEN`) live in the `beta` environment for alphas and in `stable` with `WOWI_API_TOKEN`. A weekly workflow keeps the `.toc` `## Interface:` line on Blizzard's current live and PTR builds and opens a `fix(toc)` PR when they change.
 
 ## How to contribute
 
