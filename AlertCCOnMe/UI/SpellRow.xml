@@ -1,0 +1,10 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<!-- Same base as Blizzard's SettingsCheckboxWithButtonControlTemplate, with the
+	     table layout from UI/SpellRow.lua. -->
+	<Frame name="AlertCCOnMeSpellRowTemplate" inherits="SettingsListElementTemplate" mixin="AlertCCOnMeSpellRowMixin" virtual="true">
+		<Size x="280" y="26"/>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+		</Scripts>
+	</Frame>
+</Ui>
