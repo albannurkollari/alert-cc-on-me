@@ -61,7 +61,7 @@ end
 
 - **Never branch on a secret.** Hand secrets straight to widget APIs that accept them, such as `SetAlphaFromBoolean` or `SetFormattedText`. A static scan in the test suite flags the common mistakes.
 - **Keep it light.** The addon only reacts to events and has no per-frame (OnUpdate) handlers. `tests/run.sh bench` shows the cost of a change.
-- **Spells:** a new CC spell goes in `AlertCCOnMe/Data/CastableCC.lua` under its class, with a `callout`. Each callout needs `<Key>.ogg` and `<Key>OnYou.ogg` in every built-in voice pack. `tools/generate_voices.ps1` renders them on Windows, and the tests fail if one is missing.
+- **Spells:** a new CC spell goes in `AlertCCOnMe/Data/CastableCC.lua` under its class, with a `callout`. Each callout needs `<Key>.ogg` and `<Key>OnYou.ogg` in every built-in voice pack. `tools/generate_voices.sh` renders them, and the tests fail if one is missing.
 - **Text** goes in `AlertCCOnMe/locales/enUS.lua`, never inline.
 - **Commits** follow [Conventional Commits](https://www.conventionalcommits.org/), for example `feat(spells): add Sleep Walk` or `fix(display): keep position after reload`.
 

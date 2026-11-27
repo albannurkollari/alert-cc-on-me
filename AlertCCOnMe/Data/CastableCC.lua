@@ -6,7 +6,7 @@ local _, ns = ...
 -- and per-spell on/off for readable casts.
 -- `class` is the player class that casts it (NPCs can cast some too); the spell list
 -- groups by it so players learn where each CC comes from.
--- `callout` names a clip in Media/Voice/<Pack>/ (see tools/generate_voices.ps1).
+-- `callout` names a clip in Media/Voice/<Pack>/ (see tools/generate_voices.py).
 -- Main IDs verified 2026-11-27 against Blizzard's retail game data: spec talent trees,
 -- PvP talents and baseline spells. Seduction is a pet ability, which that data does not cover.
 -- `related`: the other IDs sharing the spell's name in current game data, from
@@ -54,10 +54,9 @@ ns.ClassOrder = {
 -- Clips without a spell: readable CC not in the list, and RequireCC=false casts.
 ns.GenericCallout = { CC = "CC", Cast = "Cast" }
 
--- Built-in baseline packs (Windows voices rendered by tools/generate_voices.ps1).
+-- Built-in packs (Piper voices rendered by tools/generate_voices.py).
 -- Add-ons add more through AlertCCOnMe_RegisterVoicePack (Modules/Sound.lua).
 ns.VoicePacks = {
-	{ Value = "David", Text = "David", Path = ns.MEDIA .. "Voice\\David\\" },
-	{ Value = "Zira", Text = "Zira", Path = ns.MEDIA .. "Voice\\Zira\\" },
-	{ Value = "Mark", Text = "Mark", Path = ns.MEDIA .. "Voice\\Mark\\" },
+	{ Value = "Bryce", Text = "Bryce", Path = ns.MEDIA .. "Voice\\Bryce\\" },
+	{ Value = "Isla", Text = "Isla", Path = ns.MEDIA .. "Voice\\Isla\\" },
 }

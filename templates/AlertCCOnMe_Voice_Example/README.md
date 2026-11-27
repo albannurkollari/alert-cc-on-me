@@ -1,6 +1,6 @@
 # Voice pack template for Alert CC On Me
 
-Alert CC On Me ships three voice packs (David, Zira, Mark). A voice pack add-on adds
+Alert CC On Me ships two voice packs (Bryce, Isla). A voice pack add-on adds
 another one to the **Voice** dropdown in Settings > Alert CC On Me > Sound.
 
 ## Make a pack
@@ -34,11 +34,12 @@ another one to the **Voice** dropdown in Settings > Alert CC On Me > Sound.
    short one plays when the target is unknown ("Sheep!"). Keep clips short; under a
    second works best.
 
-   To render them with a Windows voice installed on your PC:
+   To render them with a [Piper voice](https://huggingface.co/rhasspy/piper-voices),
+   run this from the Alert CC On Me repository (it needs Docker, or Piper and ffmpeg).
+   Check the voice's license on its model card before you share the pack.
 
-   ```powershell
-   powershell -ExecutionPolicy Bypass -File tools/generate_voices.ps1 `
-     -Name Grampa -Voice "Microsoft David Desktop" -OutDir "<your add-on>\Voice"
+   ```sh
+   tools/generate_voices.sh --name Grampa --voice en_US-joe-medium --out-dir out/Grampa
    ```
 
    Or record your own and save them as `.ogg` with the names above.
@@ -46,4 +47,4 @@ another one to the **Voice** dropdown in Settings > Alert CC On Me > Sound.
    game. WoW only sees new sound files after a full restart, not after `/reload`.
 5. Pick the pack under Settings > Alert CC On Me > Sound > Voice, then `/accm test`.
 
-If the pack's add-on is disabled later, Alert CC On Me falls back to David.
+If the pack's add-on is disabled later, Alert CC On Me falls back to Bryce.

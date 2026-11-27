@@ -2,10 +2,19 @@ Alert CC On Me
 Copyright (c) 2026 Alban Nurkollari
 
 The sounds in Media/*.ogg were synthesized for this project with ffmpeg and are
-covered by this project's license. The voice callouts in Media/Voice/ were
-rendered with the Microsoft speech voices David, Zira and Mark built into Windows
-(tools/generate_voices.ps1). Media/Icon.tga is this project's own logo
+covered by this project's license. Media/Icon.tga is this project's own logo
 (docs/images/logo.svg in the repository), also covered by its license.
+
+The voice callouts in Media/Voice/ were rendered for this project with the Piper
+text-to-speech engine (tools/generate_voices.py in the repository), trimmed and
+loudness-normalized:
+
+- Media/Voice/Bryce/: Piper voice en_US-bryce-medium by Bryce Beattie, released
+  into the public domain (https://brycebeattie.com/files/tts/).
+- Media/Voice/Isla/: Piper voice en_GB-vctk-medium, speaker p277, trained on the
+  CSTR VCTK Corpus by the Centre for Speech Technology Research, University of
+  Edinburgh (https://datashare.ed.ac.uk/handle/10283/3443), licensed under
+  CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
 
 The cast-target highlight technique (PlayerIsSpellTarget fed to
 Region:SetAlphaFromBoolean) follows Blizzard's documented 12.x API and is also

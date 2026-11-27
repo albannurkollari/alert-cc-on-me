@@ -50,7 +50,7 @@ ns.Defaults = {
 		PreCast = true,
 		-- Speak the CC ("Sheep on you!") whenever the spell is readable; alarm otherwise.
 		Voice = true,
-		VoicePack = "David",
+		VoicePack = "Bryce",
 		Mode = "CONFIRMED",
 		File = "Alarm.ogg",
 		Channel = "Master",

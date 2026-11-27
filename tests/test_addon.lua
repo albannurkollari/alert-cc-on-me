@@ -51,7 +51,7 @@ T["open world: readable polymorph on me shows alert and plays sound"] = function
 	M.fireUnit("UNIT_SPELLCAST_START", "target")
 	assert(visible("target"), "alert visible")
 	eq(#M.sounds, 1, "one pre-cast sound")
-	eq(M.sounds[1], [[Interface\AddOns\AlertCCOnMe\Media\Voice\David\SheepOnYou.ogg]], "voice callout")
+	eq(M.sounds[1], [[Interface\AddOns\AlertCCOnMe\Media\Voice\Bryce\SheepOnYou.ogg]], "voice callout")
 	local slot = ns.Display.GetSlot("target")
 	eq(slot.text.formatArgs[1], "Polymorph", "spell name passed to text")
 end
@@ -280,10 +280,10 @@ T["voice: hidden spell falls back to alarm, off uses alarm, unknown CC is generi
 	ns.db.RequireCC = false
 	eq(ns.Sound.PickCallout({ spellID = 116 }, { isCCReadable = false, onMeReadable = true }), "CastOnYou", "non-CC without RequireCC")
 
-	ns.db.Sound.VoicePack = "Zira"
-	assert(ns.Sound.VoicePath("FearOnYou"):find([[Voice\Zira\FearOnYou.ogg]], 1, true), "pack selection")
+	ns.db.Sound.VoicePack = "Isla"
+	assert(ns.Sound.VoicePath("FearOnYou"):find([[Voice\Isla\FearOnYou.ogg]], 1, true), "pack selection")
 	ns.db.Sound.VoicePack = "Bogus"
-	assert(ns.Sound.VoicePath("FearOnYou"):find([[Voice\David\FearOnYou.ogg]], 1, true), "unknown pack falls back")
+	assert(ns.Sound.VoicePath("FearOnYou"):find([[Voice\Bryce\FearOnYou.ogg]], 1, true), "unknown pack falls back")
 end
 
 T["list prints every listed CC with state and flags name mismatches"] = function()
@@ -427,10 +427,10 @@ end
 
 T["voice packs: add-ons register extra packs, unknown packs fall back to built-in"] = function()
 	boot()
-	eq(#ns.VoicePacks, 3, "three built-in packs")
+	eq(#ns.VoicePacks, 2, "two built-in packs")
 	assert(AlertCCOnMe_RegisterVoicePack("Grampa", [[Interface\AddOns\AlertCCOnMe_Voice_Grampa\Voice]]), "registered")
 	assert(not AlertCCOnMe_RegisterVoicePack("Grampa", [[Interface\AddOns\Other\]]), "duplicate name refused")
-	assert(not AlertCCOnMe_RegisterVoicePack("David", [[Interface\AddOns\Other\]]), "built-in name refused")
+	assert(not AlertCCOnMe_RegisterVoicePack("Bryce", [[Interface\AddOns\Other\]]), "built-in name refused")
 	assert(not AlertCCOnMe_RegisterVoicePack("", "x") and not AlertCCOnMe_RegisterVoicePack("x", nil), "bad args refused")
 
 	ns.db.Sound.VoicePack = "Grampa"
@@ -440,7 +440,7 @@ T["voice packs: add-ons register extra packs, unknown packs fall back to built-i
 	eq(M.sounds[1], [[Interface\AddOns\AlertCCOnMe_Voice_Grampa\Voice\SheepOnYou.ogg]], "pre-cast uses the registered pack")
 
 	ns.db.Sound.VoicePack = "Uninstalled"
-	eq(ns.Sound.VoicePath("HexOnYou"), [[Interface\AddOns\AlertCCOnMe\Media\Voice\David\HexOnYou.ogg]], "missing pack falls back to David")
+	eq(ns.Sound.VoicePath("HexOnYou"), [[Interface\AddOns\AlertCCOnMe\Media\Voice\Bryce\HexOnYou.ogg]], "missing pack falls back to Bryce")
 end
 
 T["spell row template: label fills the width, on/off and X are narrow action columns"] = function()

@@ -7,7 +7,7 @@ A World of Warcraft Retail addon (Midnight, 12.1) that warns you **while** an en
 ## Features
 
 - **On-screen alert:** "Polymorph on YOU!" appears only when the cast is crowd control *and* aimed at you, in arena too.
-- **Voice callouts:** "Sheep on you!", "Cyclone on you!" in three built-in voices. Other add-ons can register more voice packs.
+- **Voice callouts:** "Sheep on you!", "Cyclone on you!" in two built-in voices, Bryce and Isla. Other add-ons can register more voice packs.
 - **Spell list by class:** each CC spell sits under its caster's class with the class icon and color. Turn spells on or off, remove them, or add your own (`/accm add 12345 monk`).
 - **Choose where it runs:** open world, arena, battleground and dungeon each have their own on/off setting.
 - **Movable and scalable:** `/accm move`, then Shift+drag to move, Shift+mouse wheel to scale, right-click to lock.
@@ -54,7 +54,7 @@ Copy the `AlertCCOnMe` folder into `World of Warcraft\_retail_\Interface\AddOns\
 
 ## Voice packs
 
-David, Zira and Mark ship with the addon. A voice pack is a small add-on that calls
+Bryce (US, male) and Isla (British, female) ship with the addon. They are open-licensed [Piper](https://github.com/OHF-Voice/piper1-gpl) voices, credited in [`NOTICE`](AlertCCOnMe/NOTICE). A voice pack is a small add-on that calls
 `AlertCCOnMe_RegisterVoicePack(name, path)` and holds one `.ogg` per callout. See [`templates/AlertCCOnMe_Voice_Example`](templates/AlertCCOnMe_Voice_Example).
 
 ## Development
@@ -62,7 +62,7 @@ David, Zira and Mark ship with the addon. A voice pack is a small add-on that ca
 | Path | Purpose |
 |---|---|
 | `tests/run.sh` | luacheck + [busted](https://lunarmodules.github.io/busted/) under Lua 5.1, the addon loaded against a WoW API mock that raises on any misuse of secret values. Uses local `busted`/`luacheck` if installed, otherwise Docker (`tests/Dockerfile`). `tests/run.sh bench` runs the micro-benchmark |
-| `tools/generate_voices.ps1` | Renders voice clips with Windows speech voices and ffmpeg |
+| `tools/generate_voices.sh` | Renders the voice clips with Piper and ffmpeg, in Docker unless both are installed (`tools/generate_voices.py`) |
 | `install.sh` | Runs the tests, then copies the addon into your AddOns folder (`WOW_ADDONS` overrides the path) |
 
 ## Releasing
