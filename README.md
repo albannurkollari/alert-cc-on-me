@@ -13,6 +13,12 @@ A World of Warcraft Retail addon (Midnight, 12.1) that warns you **while** an en
 - **Movable and scalable:** `/accm move`, then Shift+drag to move, Shift+mouse wheel to scale, right-click to lock.
 - **Lightweight:** it only reacts to enemy cast events, runs no per-frame handlers, and never touches the network.
 
+## Screenshots
+
+| The alert | Options | Spell list |
+|---|---|---|
+| ![Polymorph on YOU! above the player](docs/images/screenshots/alert.png) | ![Options page with Where to alert and Visual alert](docs/images/screenshots/settings.png) | ![Spell list grouped by class](docs/images/screenshots/spell-list.png) |
+
 ## How it works
 
 Since Midnight, the game hands addons enemy cast data as *secret values*. An addon may pass them to some UI functions but cannot read or compare them. The alert is built from nested frames whose transparency comes straight from two secret answers ("is it crowd control?" and "is it aimed at me?"), so it shows only when both are true. The addon itself never learns either answer.
