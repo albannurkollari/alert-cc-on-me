@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/images/banner.png" alt="Alert CC On Me" width="800"></p>
+
 # Alert CC On Me
 
 A World of Warcraft Retail addon (Midnight, 12.1) that warns you **while** an enemy is casting crowd control at you (Polymorph, Cyclone, Fear, Hex, Mind Control, Sleep Walk and more), so you still have time to interrupt, stun, or break line of sight before it lands.
@@ -7,8 +9,15 @@ A World of Warcraft Retail addon (Midnight, 12.1) that warns you **while** an en
 - **On-screen alert:** "Polymorph on YOU!" appears only when the cast is crowd control *and* aimed at you, in arena too.
 - **Voice callouts:** "Sheep on you!", "Cyclone on you!" in three built-in voices. Other add-ons can register more voice packs.
 - **Spell list by class:** each CC spell sits under its caster's class with the class icon and color. Turn spells on or off, remove them, or add your own (`/accm add 12345 monk`).
+- **Choose where it runs:** open world, arena, battleground and dungeon each have their own on/off setting.
 - **Movable and scalable:** `/accm move`, then Shift+drag to move, Shift+mouse wheel to scale, right-click to lock.
 - **Lightweight:** it only reacts to enemy cast events, runs no per-frame handlers, and never touches the network.
+
+## Screenshots
+
+| The alert | Options | Spell list |
+|---|---|---|
+| ![Polymorph on YOU! above the player](docs/images/screenshots/alert.png) | ![Options page with Where to alert and Visual alert](docs/images/screenshots/settings.png) | ![Spell list grouped by class](docs/images/screenshots/spell-list.png) |
 
 ## How it works
 
@@ -52,14 +61,32 @@ David, Zira and Mark ship with the addon. A voice pack is a small add-on that ca
 
 | Path | Purpose |
 |---|---|
-| `tests/run_tests.py` | Offline test suite: loads the addon under LuaJIT with a WoW API mock that raises on any misuse of secret values (Python 3.14 + `pip install lupa`) |
-| `tests/bench.py` | Micro-benchmark under Lua 5.1 |
+| `tests/run.sh` | luacheck + [busted](https://lunarmodules.github.io/busted/) under Lua 5.1, the addon loaded against a WoW API mock that raises on any misuse of secret values. Uses local `busted`/`luacheck` if installed, otherwise Docker (`tests/Dockerfile`). `tests/run.sh bench` runs the micro-benchmark |
 | `tools/generate_voices.ps1` | Renders voice clips with Windows speech voices and ffmpeg |
 | `install.sh` | Runs the tests, then copies the addon into your AddOns folder (`WOW_ADDONS` overrides the path) |
 
+## Releasing
+
+`beta` is the default branch and takes every PR. `main` holds stable releases. Shipping follows DBM, BigWigs, Details!, WeakAuras and Plater: every change goes out as an untagged **alpha** build, and tags mark **releases** only. Both are built by the [BigWigs packager](https://github.com/BigWigsMods/packager), with no manual tagging.
+
+| Merge into | Publishes | Where | Approval |
+|---|---|---|---|
+| `beta` (any change to the addon) | alpha build, versioned from git, e.g. `v1.0.0-3-gabc1234` | Alpha channel on CurseForge and Wago | none |
+| `main` (the promotion PR from `beta`, merge commit) | tag `vX.Y.Z` | CurseForge, Wago, WoWInterface and GitHub Releases | required in the `stable` environment |
+
+The stable version comes from the [Conventional Commits](https://www.conventionalcommits.org/) since the last release (`feat` → minor, `fix`/`perf` → patch, `!` → major), starting at `v1.0.0` for the first release. A promotion that holds only `docs`, `chore` or `test` commits publishes nothing. After each merge into `beta`, a single `beta` → `main` promotion PR is opened or refreshed. It lists the commits waiting for a stable release and the version merging it will publish.
+
+Every PR is checked for commit format, luacheck, the busted suite and a package build, which is attached to the run so you can try it in game. Upload tokens (`CF_API_TOKEN`, `WAGO_API_TOKEN`) live in the `beta` environment for alphas and in `stable` with `WOWI_API_TOKEN`. A weekly workflow keeps the `.toc` `## Interface:` line on Blizzard's current live and PTR builds and opens a `fix(toc)` PR when they change.
+
+Each market has a config in [`markets/`](markets): its channels, the `.toc` line holding its project ID, its token and its listing rules, which every PR checks (for example CurseForge's 400×400 avatar). Each market publishes from its own job, so a failed upload is retried alone. A merged PR labelled `CurseForge`, `Wago` or `WoWInterface` publishes to those markets only, one label or several; with no market label it goes to all of them. Stable releases always get a GitHub Release. A market is skipped until its project ID is in the `.toc`.
+
+## How to contribute
+
+Bug reports, spell-list fixes, voice packs and code are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) explains how to set up the repo, run the addon locally and run the tests. Please follow the [Code of Conduct](CODE_OF_CONDUCT.md), which includes Blizzard's rules for add-ons.
+
 ## License
 
-[Apache-2.0](LICENSE). See [`AlertCCOnMe/NOTICE`](AlertCCOnMe/NOTICE) for attributions.
+[MIT](LICENSE) © 2026 Alban Nurkollari. See [`AlertCCOnMe/NOTICE`](AlertCCOnMe/NOTICE) for attributions.
 
 ---
 

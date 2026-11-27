@@ -1,0 +1,83 @@
+name: Bug report
+description: Something doesn't work as it should, or shows a Lua error.
+labels: [fix]
+body:
+  - type: markdown
+    attributes:
+      value: >
+        Thanks for reporting! Please check the
+        [open issues](https://github.com/albannurkollari/alert-cc-on-me/issues)
+        first, in case it's already known.
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you saw, and what you expected instead.
+      placeholder: A Mage cast Polymorph on me in arena, but no alert showed.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Enter a Skirmish
+        2. Let the enemy Mage cast Polymorph on you
+        3. ...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where did it happen?
+      multiple: true
+      options:
+        - Open world
+        - Arena
+        - Battleground
+        - Dungeon
+        - Raid or delve
+        - Anywhere / not location-specific
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Addon version
+      description: 'Printed in chat at login, e.g. "AlertCCOnMe: v0.2.0 loaded".'
+      placeholder: v0.2.0 or v0.2.0-3-gabc1234
+    validations:
+      required: true
+
+  - type: input
+    id: game
+    attributes:
+      label: Game version
+      description: Shown at the bottom left of the login screen.
+      placeholder: 12.1.5
+    validations:
+      required: true
+
+  - type: textarea
+    id: debug
+    attributes:
+      label: /accm status and /accm debug output
+      description: Run `/accm status`, then `/accm debug` and reproduce the problem, and paste the chat lines.
+      render: text
+
+  - type: textarea
+    id: errors
+    attributes:
+      label: Lua errors
+      description: With `/console scriptErrors 1` enabled, or from BugSack/BugGrabber.
+      render: text
+
+  - type: textarea
+    id: addons
+    attributes:
+      label: Other addons
+      description: Especially nameplate, arena-frame or UI-overhaul addons.

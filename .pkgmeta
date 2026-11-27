@@ -1,0 +1,16 @@
+package-as: AlertCCOnMe
+
+# The addon lives in a subfolder so tests and tooling stay out of the package.
+move-folders:
+  AlertCCOnMe/AlertCCOnMe: AlertCCOnMe
+
+ignore:
+  - docs
+  - markets
+  - scripts
+  - tests
+  - tools
+  - templates
+  - install.sh
+  - CONTRIBUTING.md
+  - CODE_OF_CONDUCT.md

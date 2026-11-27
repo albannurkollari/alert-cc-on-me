@@ -28,6 +28,28 @@ local UPDATE_EVENTS = {
 local watchers = {}
 local debugEnabled = false
 
+-- IsInInstance's type -> db.Zones key.
+local ZONE_OF_INSTANCE = { none = "World", arena = "Arena", pvp = "Battleground", party = "Dungeon" }
+local zoneKey -- nil when the current instance type has no toggle
+local activeHere = true
+
+-- The instance type only changes behind a loading screen, so it is read on
+-- PLAYER_ENTERING_WORLD and on option changes rather than per cast.
+local function UpdateZone()
+	local ok, _, instanceType = Util.SafeCall(IsInInstance)
+	if not ok or IsSecret(instanceType) then
+		zoneKey, activeHere = nil, true
+		return
+	end
+	zoneKey = ZONE_OF_INSTANCE[instanceType or "none"]
+	activeHere = zoneKey ~= nil and ns.db.Zones[zoneKey] == true
+end
+
+-- For /accm status: the toggle that applies here and whether alerts run.
+function CastWatcher.ZoneState()
+	return zoneKey, activeHere
+end
+
 local function SourceOf(unit)
 	if unit:find("^arena") then
 		return "Arena"
@@ -89,7 +111,7 @@ end
 
 function CastWatcher.Evaluate(unit, allowSound)
 	local db = ns.db
-	if not db.Enabled then
+	if not db.Enabled or not activeHere then
 		ns.Display.Hide(unit)
 		return
 	end
@@ -170,6 +192,7 @@ function CastWatcher.Rescan(unit, allowSound)
 end
 
 function CastWatcher.RescanAll()
+	UpdateZone()
 	for unit in pairs(watchers) do
 		CastWatcher.Evaluate(unit, false)
 	end

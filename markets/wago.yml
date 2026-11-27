@@ -1,0 +1,16 @@
+# Wago Addons. Docs: https://docs.wago.io
+# A PR label with this file's name, in any case (e.g. CurseForge), picks this market
+# (see README, Releasing).
+name: Wago
+channels: [alpha, release]
+# The project ID line in the .toc: the packager uploads with it, the Wago app matches
+# installed copies by it.
+toc-id: X-Wago-ID
+# The upload token, an environment secret in `beta` and `stable`.
+secret: WAGO_API_TOKEN
+
+# The project page, filled in by hand (no API) and checked on every PR.
+listing:
+  avatar: { file: docs/images/logo.png }
+  summary: { file: markets/listing/summary.txt, max-sentences: 1 }
+  description: markets/listing/description.md

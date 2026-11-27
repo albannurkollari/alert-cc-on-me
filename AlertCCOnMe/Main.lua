@@ -60,8 +60,8 @@ local function HandleSlash(message)
 	elseif command == "spells" then
 		ns.SettingsUI.OpenSpellList()
 	elseif command == "add" then
-		local _, message = ns.SpellList.Add(rest)
-		Util.Print(message)
+		local _, result = ns.SpellList.Add(rest)
+		Util.Print(result)
 	elseif command == "remove" then
 		local spellID = tonumber(rest)
 		if spellID and ns.SpellList.IsListed(spellID) then
@@ -83,9 +83,11 @@ local function HandleSlash(message)
 		ns.ApplySettings()
 		Util.Print(ns.db.Enabled and L.Enabled or L.Disabled)
 	elseif command == "status" then
-		Util.Print(("enabled=%s mode=%s preCast=%s voice=%s (%s) requireCC=%s"):format(
-			tostring(ns.db.Enabled), ns.db.Sound.Mode, tostring(ns.db.Sound.PreCast),
-			tostring(ns.db.Sound.Voice), ns.db.Sound.VoicePack, tostring(ns.db.RequireCC)))
+		local zone, active = ns.CastWatcher.ZoneState()
+		Util.Print(("enabled=%s zone=%s (%s) mode=%s preCast=%s voice=%s (%s) requireCC=%s"):format(
+			tostring(ns.db.Enabled), zone or "other", active and "on" or "off", ns.db.Sound.Mode,
+			tostring(ns.db.Sound.PreCast), tostring(ns.db.Sound.Voice), ns.db.Sound.VoicePack,
+			tostring(ns.db.RequireCC)))
 	else
 		Util.Print(L.Help)
 	end
@@ -120,6 +122,10 @@ eventFrame:SetScript("OnEvent", function(self, event, arg1)
 		self:RegisterEvent("PLAYER_LOGIN")
 	elseif event == "PLAYER_LOGIN" then
 		local version = C_AddOns.GetAddOnMetadata(addonName, "Version") or "?"
+		-- The packager writes the tag here; a git checkout still has the placeholder.
+		if version:find("^@") then
+			version = "dev"
+		end
 		Util.Print(L.Loaded:format(version))
 	end
 end)

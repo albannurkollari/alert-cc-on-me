@@ -1,0 +1,109 @@
+name: Alpha
+
+# Every merge into beta that changes the addon ships as an alpha build, the way DBM,
+# BigWigs, Details!, WeakAuras and Plater ship every push. It is untagged, so the packager
+# versions it from git (e.g. v1.0.0-3-gabc1234), CurseForge and Wago list it in their
+# Alpha channel, and GitHub and WoWInterface (which need a tag) get nothing. Stable
+# releases are tagged from main (release.yml).
+on:
+  push:
+    branches: [beta]
+    # What .pkgmeta keeps out of the package: changing only these ships nothing new.
+    paths-ignore:
+      - ".github/**"
+      - "docs/**"
+      - "markets/**"
+      - "scripts/**"
+      - "tests/**"
+      - "tools/**"
+      - "templates/**"
+      - "install.sh"
+      - "CONTRIBUTING.md"
+      - "CODE_OF_CONDUCT.md"
+      - ".busted"
+      - ".luacheckrc"
+  # A manual run has no PR, so it publishes to all markets.
+  workflow_dispatch:
+
+concurrency:
+  group: alpha
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+
+  plan:
+    name: Pick markets
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      # Reads the labels of the PR this merge came from.
+      pull-requests: read
+    outputs:
+      markets: ${{ steps.plan.outputs.markets }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # Market labels on the merged PR (CurseForge, Wago...) pick those markets only.
+      - id: plan
+        name: Read market labels
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          labels=""
+          if [ "$GITHUB_EVENT_NAME" = push ]; then
+            labels=$(gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/pulls" \
+              --jq ".[] | select(.merge_commit_sha == \"$GITHUB_SHA\") | .labels[].name")
+          fi
+          # shellcheck disable=SC2086 # one argument per label
+          markets=$(scripts/markets.sh plan alpha $labels 2>>"$GITHUB_STEP_SUMMARY")
+          echo "markets=$markets" >> "$GITHUB_OUTPUT"
+
+  # One job per market, so a failed upload is retried alone ("Re-run failed jobs")
+  # without uploading the same build twice to the markets that took it.
+  publish:
+    name: Alpha to ${{ matrix.name }}
+    needs: [test, plan]
+    if: needs.plan.outputs.markets != '[]'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.markets) }}
+    # Holds the CurseForge and Wago tokens.
+    environment: beta
+    env:
+      # Only this job's market gets a token, so the packager uploads there alone.
+      CF_API_TOKEN: ${{ matrix.market == 'curseforge' && secrets.CF_API_TOKEN || '' }}
+      WAGO_API_TOKEN: ${{ matrix.market == 'wago' && secrets.WAGO_API_TOKEN || '' }}
+      MARKET: ${{ matrix.market }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # Merges in quick succession: only the newest commit is uploaded.
+      - id: tip
+        name: Check branch tip
+        run: |
+          if [ "$(git ls-remote origin refs/heads/beta | cut -f1)" = "$GITHUB_SHA" ]; then
+            echo "current=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No upload: beta has moved on; its run uploads the newer build." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Check token
+        if: steps.tip.outputs.current == 'true'
+        run: |
+          secret=$(yq -r .secret "markets/$MARKET.yml")
+          if [ -z "${!secret}" ]; then
+            echo "::error::No $secret secret in the beta environment."
+            exit 1
+          fi
+
+      - if: steps.tip.outputs.current == 'true'
+        uses: BigWigsMods/packager@v2

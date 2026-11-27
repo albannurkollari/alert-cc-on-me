@@ -1,0 +1,54 @@
+name: Feature request
+description: Suggest an idea, a missing CC spell or a voice pack improvement.
+labels: [feat]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would it solve?
+      placeholder: In battlegrounds I can't tell which enemy is casting the CC at me.
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like to happen?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - On-screen alert
+        - Voice callouts / voice packs
+        - Spell list (missing or wrong CC spell)
+        - Settings
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: spell
+    attributes:
+      label: Spell ID and class (for spell list requests)
+      description: From Wowhead's URL or the spell's tooltip, e.g. 198898 (Monk).
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you've considered
+
+  - type: checkboxes
+    id: policy
+    attributes:
+      label: Blizzard's add-on rules
+      description: >-
+        Add-ons can't automate gameplay or work around the game's restrictions on them.
+        See the Code of Conduct's
+        [add-on rules](https://github.com/albannurkollari/alert-cc-on-me/blob/beta/CODE_OF_CONDUCT.md#world-of-warcraft-add-on-standards).
+      options:
+        - label: The idea fits within those rules, as far as I can tell.
+          required: true

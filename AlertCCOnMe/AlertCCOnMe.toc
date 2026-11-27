@@ -1,12 +1,13 @@
-## Interface: 120100, 120105
+## Interface: 120105, 120107
 ## Title: Alert CC On Me
 ## Notes: Visual and sound warning when an enemy is casting crowd control on you.
 ## Author: Erenndriel
-## Version: 0.1.0
+## Version: @project-version@
 ## SavedVariables: AlertCCOnMeDB
-## IconTexture: Interface\Icons\Spell_Nature_Polymorph
+## IconTexture: Interface\AddOns\AlertCCOnMe\Media\Icon
 ## AddonCompartmentFunc: AlertCCOnMe_OnCompartmentClick
-## X-License: Apache-2.0
+## X-License: MIT
+## X-Curse-Project-ID: 1835896
 
 Core\Init.lua
 Core\Defaults.lua

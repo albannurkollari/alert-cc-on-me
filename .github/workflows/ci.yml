@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  pull_request:
+  workflow_call:
+  # Dispatched by promote.yml and interface.yml for the PRs they open (see there).
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  commits:
+    name: Conventional commits
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # Release versions are derived from these subjects (see scripts/next-version.sh).
+      - name: Check commit subjects
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          # Dispatched for a PR a workflow opened: beta -> main (promote.yml) or a
+          # branch -> beta (interface.yml). Check everything not yet on the target.
+          if [ -z "$BASE" ]; then
+            target=beta
+            if [ "$GITHUB_REF_NAME" = beta ]; then target=main; fi
+            BASE=$(git merge-base "origin/$target" HEAD)
+            HEAD=$(git rev-parse HEAD)
+          fi
+          types='feat|fix|perf|docs|chore|test|ci|build|refactor|style|revert'
+          bad=$(git log --no-merges --format='%h %s' "$BASE..$HEAD" \
+            | grep -vE "^[0-9a-f]+ ($types)(\([a-z0-9-]+\))?!?: .+" || true)
+          if [ -n "$bad" ]; then
+            echo "::error::Commit subjects must follow Conventional Commits, e.g. 'fix(display): keep position after reload':"
+            echo "$bad"
+            exit 1
+          fi
+
+  test:
+    name: Lint and test
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      # Same Lua 5.1 image as tests/run.sh uses locally.
+      - name: Build Lua 5.1 image
+        run: docker build -t alertcconme-lua -f tests/Dockerfile tests
+
+      - name: luacheck
+        run: docker run --rm -v "$PWD:/src" alertcconme-lua luacheck .
+
+      - name: busted
+        run: docker run --rm -v "$PWD:/src" alertcconme-lua busted -o utfTerminal
+
+      # Each market's listing rules (markets/*.yml), e.g. CurseForge's 400x400 avatar.
+      - name: Market requirements
+        run: docker run --rm -v "$PWD:/src" alertcconme-lua scripts/markets.sh check
+
+  package:
+    name: Package
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Build package (no upload)
+        uses: BigWigsMods/packager@v2
+        with:
+          args: -d
+
+      - name: Check package contents
+        run: |
+          files=$(unzip -Z1 .release/*.zip)
+          fail() { echo "::error::$1"; exit 1; }
+          grep -qvE '^AlertCCOnMe/' <<<"$files" && fail "files outside AlertCCOnMe/"
+          grep -E '^AlertCCOnMe/(docs|markets|tests|tools|templates|scripts|\.)' <<<"$files" && fail "development files in the package"
+          for required in AlertCCOnMe.toc LICENSE NOTICE; do
+            grep -qx "AlertCCOnMe/$required" <<<"$files" || fail "missing AlertCCOnMe/$required"
+          done
+          echo "$(grep -c . <<<"$files") files OK"
+
+      # The packager's zip as-is (named AlertCCOnMe-<version>.zip), on the run's summary
+      # page for trying the build in game. Kept 14 days instead of the default 90.
+      - uses: actions/upload-artifact@v7
+        with:
+          path: .release/AlertCCOnMe-*.zip
+          archive: false
+          # .release/ is a dot-directory, which upload-artifact skips by default.
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14

@@ -26,6 +26,14 @@ ns.Defaults = {
 	RequireCC = true,
 	PlayersOnly = false,
 
+	-- Where alerts run. Raids and scenarios (delves) have no toggle and stay off.
+	Zones = {
+		World = true,
+		Arena = true,
+		Battleground = true,
+		Dungeon = true,
+	},
+
 	Visual = {
 		ShowIcon = false,
 		IconSize = 56,

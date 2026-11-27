@@ -1,0 +1,99 @@
+name: Promote
+
+# After every merge into beta, open or refresh the one beta -> main PR. Its body lists the
+# commits waiting for a stable release and the version that merging it will publish.
+on:
+  pull_request:
+    types: [closed]
+    branches: [beta]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: promote
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    name: Open or update promotion PR
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: write
+      # Dispatches CI for a newly opened PR (see below).
+      actions: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: beta
+          fetch-depth: 0
+
+      # Written to a file, never interpolated into a script: commit subjects are
+      # contributor-controlled text.
+      - name: Build PR body
+        id: body
+        run: |
+          base=$(git merge-base origin/main HEAD)
+          count=$(git rev-list --count --no-merges "$base..HEAD")
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+
+          version=$(scripts/next-version.sh)
+          git log --reverse --no-merges --format='- %s (%h)' "$base..HEAD" > commits.txt
+
+          breaking='^- [a-z]+(\([^)]*\))?!:'
+          feature='^- feat(\([^)]*\))?:'
+          fix='^- (fix|perf)(\([^)]*\))?:'
+          section() {
+            local lines
+            lines=$(grep -E "$2" commits.txt | grep -vE "${3:-^$}" || true)
+            if [ -n "$lines" ]; then printf '### %s\n\n%s\n\n' "$1" "$lines"; fi
+          }
+
+          {
+            echo "## Promote \`beta\` to \`main\`"
+            echo
+            if [ -n "$version" ]; then
+              echo "Merging publishes **\`$version\`** to the stable channel, after approval in the \`stable\` environment."
+            else
+              echo "Merging publishes **no release**: there is no \`feat\`, \`fix\` or breaking change since the last stable tag."
+            fi
+            echo
+            section "Breaking changes" "$breaking"
+            section "Features" "$feature" "$breaking"
+            section "Fixes" "$fix" "$breaking"
+            section "Other" '.' "$breaking|$feature|$fix"
+            echo "---"
+            echo "_${count} commit(s) ahead of \`main\`. Refreshed after every merge into \`beta\`. Merge with a merge commit._"
+          } > body.md
+          cat body.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open or update the PR
+        id: pr
+        if: steps.body.outputs.count != '0'
+        run: |
+          title="chore(release): promote beta to main"
+          number=$(gh pr list --base main --head beta --state open --json number --jq '.[0].number // empty')
+          if [ -n "$number" ]; then
+            gh pr edit "$number" --title "$title" --body-file body.md
+          else
+            url=$(gh pr create --base main --head beta --title "$title" --body-file body.md)
+            number=${url##*/}
+            # A PR opened with GITHUB_TOKEN triggers no pull_request workflows, but a
+            # dispatch does: CI on beta reports the required checks on the PR's head commit.
+            gh workflow run ci.yml --ref beta
+          fi
+          echo "number=$number" >> "$GITHUB_OUTPUT"
+
+      - name: Link the merged PR to the promotion PR
+        if: github.event_name == 'pull_request' && steps.pr.outputs.number != ''
+        env:
+          MERGED: ${{ github.event.pull_request.number }}
+          PROMOTION: ${{ steps.pr.outputs.number }}
+        run: |
+          gh pr comment "$MERGED" --body "Queued for the next stable release in #$PROMOTION."
