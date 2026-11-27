@@ -1,15 +1,16 @@
 name: Release
 
-# Every merge into beta or main that carries a feat, fix or breaking change publishes:
-# vX.Y.Z-beta.N from beta, vX.Y.Z from main (after approval in the `stable` environment).
-# Tagging and publishing happen in this run because a tag or release made with
-# GITHUB_TOKEN does not trigger other workflows.
+# Every merge into main (the promotion PR) that carries a feat, fix or breaking change
+# publishes stable vX.Y.Z after approval in the `stable` environment: a tag, a GitHub
+# Release and uploads to CurseForge, Wago and WoWInterface. The version comes from the
+# Conventional Commits since the last stable tag. Merges into beta ship as untagged alpha
+# builds instead (alpha.yml).
 on:
   push:
-    branches: [beta, main]
+    branches: [main]
 
 concurrency:
-  group: release-${{ github.ref_name }}
+  group: release
   cancel-in-progress: false
 
 permissions:
@@ -26,12 +27,22 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Merges in quick succession: only the run for the branch tip releases, and it
+      # carries the earlier commits too. A tag on an older commit would also be refused
+      # if a later merge changed workflow files.
       - id: next
         name: Derive from commits
         run: |
-          tag=$(scripts/next-version.sh "$GITHUB_REF_NAME")
+          tip=$(git ls-remote origin refs/heads/main | cut -f1)
+          if [ "$tip" != "$GITHUB_SHA" ]; then
+            tag=""
+            summary="No release: main has moved on to ${tip:0:7}, whose run releases these commits too."
+          else
+            tag=$(scripts/next-version.sh)
+            summary="${tag:-No release: no feat, fix or breaking change since the last stable release.}"
+          fi
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
-          echo "${tag:-No release: no feat, fix or breaking change since the last stable tag.}" >> "$GITHUB_STEP_SUMMARY"
+          echo "$summary" >> "$GITHUB_STEP_SUMMARY"
 
   test:
     needs: version
@@ -42,8 +53,8 @@ jobs:
     name: Publish ${{ needs.version.outputs.tag }}
     needs: [version, test]
     runs-on: ubuntu-24.04
-    # Holds the upload tokens; `stable` waits for approval.
-    environment: ${{ github.ref_name == 'main' && 'stable' || 'beta' }}
+    # Holds the upload tokens and waits for approval.
+    environment: stable
     permissions:
       contents: write
     env:
@@ -57,11 +68,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      # The packager reads the version and channel (beta/release) from the tag on HEAD.
-      - name: Tag
+      # The packager reads the version from the tag on HEAD, and the GitHub Release it
+      # creates attaches to that tag. Checked again here: main may move on during approval.
+      - id: tag
+        name: Tag
         env:
           TAG: ${{ needs.version.outputs.tag }}
         run: |
+          if [ "$(git ls-remote origin refs/heads/main | cut -f1)" != "$GITHUB_SHA" ]; then
+            echo "No release: main moved on while waiting; its run releases these commits." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo "current=true" >> "$GITHUB_OUTPUT"
           if ! git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -69,4 +87,15 @@ jobs:
             git push origin "$TAG"
           fi
 
-      - uses: BigWigsMods/packager@v2
+      # The packager skips a branch push whose commit is tagged, expecting a separate
+      # build for the tag push, but a tag pushed with GITHUB_TOKEN starts no workflow.
+      # So run the same scripts BigWigsMods/packager@v2 runs, presented as that tag build.
+      - name: Package and publish
+        if: steps.tag.outputs.current == 'true'
+        env:
+          TAG: ${{ needs.version.outputs.tag }}
+        run: |
+          git clone --quiet --depth 1 --branch v2 https://github.com/BigWigsMods/packager.git "$RUNNER_TEMP/packager"
+          export GITHUB_REF="refs/tags/$TAG" GITHUB_REF_NAME="$TAG"
+          "$RUNNER_TEMP/packager/setup-packager.sh"
+          "$RUNNER_TEMP/packager/release.sh"

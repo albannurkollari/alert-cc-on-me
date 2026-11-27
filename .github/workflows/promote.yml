@@ -43,9 +43,7 @@ jobs:
           count=$(git rev-list --count --no-merges "$base..HEAD")
           echo "count=$count" >> "$GITHUB_OUTPUT"
 
-          version=$(scripts/next-version.sh main)
-          # shellcheck disable=SC2016 # literal backticks: markdown code spans
-          betas=$(git tag -l 'v*-beta.*' --merged HEAD --no-merged origin/main | sort -V | sed 's/.*/`&`/' | paste -sd, - | sed 's/,/, /g')
+          version=$(scripts/next-version.sh)
           git log --reverse --no-merges --format='- %s (%h)' "$base..HEAD" > commits.txt
 
           breaking='^- [a-z]+(\([^)]*\))?!:'
@@ -66,7 +64,6 @@ jobs:
               echo "Merging publishes **no release**: there is no \`feat\`, \`fix\` or breaking change since the last stable tag."
             fi
             echo
-            if [ -n "$betas" ]; then echo "**Beta builds included:** $betas"; echo; fi
             section "Breaking changes" "$breaking"
             section "Features" "$feature" "$breaking"
             section "Fixes" "$fix" "$breaking"
