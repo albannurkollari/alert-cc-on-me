@@ -1,0 +1,15 @@
+# WoWInterface. Has no alpha channel, so it takes stable releases only.
+# A PR label with this file's name, in any case (e.g. CurseForge), picks this market
+# (see README, Releasing).
+name: WoWInterface
+channels: [release]
+# The project ID line in the .toc, read by the packager.
+toc-id: X-WoWI-ID
+# The upload token, an environment secret in `stable`.
+secret: WOWI_API_TOKEN
+
+# The project page, filled in by hand (no API) and checked on every PR.
+listing:
+  description: markets/listing/description.md
+  # The upload form needs at least one.
+  screenshots: { dir: docs/images/screenshots, min: 1 }

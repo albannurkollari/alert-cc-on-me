@@ -6,7 +6,7 @@ Thanks for helping out! Bug reports, spell-list corrections, voice packs and cod
 
 - [Git](https://git-scm.com/) and a Bash shell (on Windows, the Git Bash that comes with Git)
 - World of Warcraft Retail, to try changes in game
-- **Either** [Docker](https://www.docker.com/products/docker-desktop/) **or** Lua 5.1 with [LuaRocks](https://luarocks.org/), to run the tests. Docker needs no other setup. For a native setup, run `luarocks --lua-version=5.1 install busted` and `luarocks --lua-version=5.1 install luacheck`
+- **Either** [Docker](https://www.docker.com/products/docker-desktop/) **or** Lua 5.1 with [LuaRocks](https://luarocks.org/), to run the tests. Docker needs no other setup. For a native setup, run `luarocks --lua-version=5.1 install busted` and `luarocks --lua-version=5.1 install luacheck`, plus [yq](https://github.com/mikefarah/yq) for the market check
 
 ## Get the code
 
@@ -41,12 +41,12 @@ For a quicker loop, link the folder instead of copying it, then `/reload` after 
 ## Run the tests
 
 ```sh
-tests/run.sh                 # luacheck, then every busted test
+tests/run.sh                 # luacheck, the market check, then every busted test
 tests/run.sh --filter zone   # only tests whose name matches
 tests/run.sh bench           # micro-benchmark
 ```
 
-The script uses `busted` and `luacheck` if they're on your PATH, and otherwise builds and runs the Lua 5.1 container in `tests/Dockerfile` (start Docker first). CI runs the same container on every PR.
+The script uses `busted`, `luacheck` and `yq` if they're on your PATH, and otherwise builds and runs the Lua 5.1 container in `tests/Dockerfile` (start Docker first). CI runs the same container on every PR.
 
 The tests load the addon in `.toc` order against `tests/wow_mock.lua`. In that mock, secret values raise an error the moment addon code compares them, truth-tests them, or does arithmetic on them, just like the live client. A new behaviour test goes in `tests/test_addon.lua`:
 
@@ -68,7 +68,7 @@ end
 ## Pull requests
 
 1. Open the PR against `beta`.
-2. Make sure `tests/run.sh` passes. CI must be green before a merge: commit format, luacheck, busted and a package build.
+2. Make sure `tests/run.sh` passes. CI must be green before a merge: commit format, luacheck, the market check, busted and a package build.
 3. Describe what changed and how you checked it in game, if you could. Each CI run attaches the packaged addon (`AlertCCOnMe-<version>.zip`, kept 14 days) to the run's summary page, so you can unzip it into `Interface/AddOns/` and try it.
 
 Every merged change to the addon ships as an alpha build for testers on CurseForge and Wago. Merged changes also collect in an automatic `beta` → `main` promotion PR. When the maintainer merges it, your commit types decide the stable version (`feat` → minor, `fix` → patch), so pick them carefully; `docs`, `chore` and `test` alone publish nothing (see the README).

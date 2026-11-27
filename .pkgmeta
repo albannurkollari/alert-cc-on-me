@@ -6,6 +6,7 @@ move-folders:
 
 ignore:
   - docs
+  - markets
   - scripts
   - tests
   - tools
