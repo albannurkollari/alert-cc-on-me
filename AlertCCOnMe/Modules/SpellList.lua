@@ -56,7 +56,6 @@ function SpellList.GetEntries(includeRemoved)
 				expected = spell.name,
 				icon = SpellIcon(spell.id),
 				enabled = override.enabled ~= false,
-				callout = spell.callout,
 				related = spell.related or {},
 				custom = false,
 			}
@@ -81,7 +80,6 @@ function SpellList.GetEntries(includeRemoved)
 			expected = name,
 			icon = SpellIcon(custom.id),
 			enabled = Overrides()[custom.id].enabled ~= false,
-			callout = ns.GenericCallout.CC,
 			related = {},
 			custom = true,
 		}
@@ -169,14 +167,6 @@ end
 
 function SpellList.IsEnabled(spellID)
 	return SpellList.IsListed(spellID) and lookup[spellID].enabled
-end
-
-function SpellList.CalloutFor(spellID)
-	local entry = Find(spellID)
-	if entry and entry.enabled then
-		return entry.callout
-	end
-	return nil
 end
 
 function SpellList.IsSuppressed(spellID)

@@ -10,7 +10,7 @@ Images for the project pages on CurseForge, Wago and WoWInterface, and for the R
 | `edit-mode.png` | The edit box being moved and scaled | `/accm move`, then Shift + drag mid-move | — |
 | `settings.png` | The options page, including "Where to alert" | `/accm` | ✅ |
 | `spell-list.png` | The spell list grouped by class, with on/off and X | `/accm spells` | ✅ |
-| `voice.png` | The voice pack dropdown open | `/accm`, Sound section | — |
+| `sound.png` | The pre-cast sound dropdown open | `/accm`, Sound section | — |
 
 ## Guidelines
 

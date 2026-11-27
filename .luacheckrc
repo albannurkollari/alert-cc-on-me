@@ -6,7 +6,6 @@ exclude_files = { ".release" }
 globals = {
 	"AlertCCOnMeDB",
 	"AlertCCOnMe_OnCompartmentClick",
-	"AlertCCOnMe_RegisterVoicePack",
 	"AlertCCOnMeSpellRowMixin",
 	"SLASH_ALERTCCONME1",
 	"SLASH_ALERTCCONME2",

@@ -1,1 +1,1 @@
-Warns you on screen and by voice while an enemy is casting crowd control at you, so you can still interrupt or dodge it.
+Warns you on screen and with a sound alert while an enemy is casting crowd control at you, so you can still interrupt or dodge it.

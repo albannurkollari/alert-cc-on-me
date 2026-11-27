@@ -105,7 +105,7 @@ end
 local function ListEntry(entry)
 	local actual = GameSpellName(entry.id)
 	local base = entry.expected:gsub("%s*%(.*%)$", "")
-	local line = ("  %d  %s -> %s -> \"%s\""):format(entry.id, entry.expected, actual, entry.callout)
+	local line = ("  %d  %s -> %s"):format(entry.id, entry.expected, actual)
 	if #entry.related > 0 then
 		line = line .. L.ListRelated:format(#entry.related)
 	end

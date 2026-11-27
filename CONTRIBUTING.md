@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping out! Bug reports, spell-list corrections, voice packs and code are all welcome. By taking part you agree to the [Code of Conduct](CODE_OF_CONDUCT.md), which also lists what Blizzard allows in an add-on. Please read that section before you open a PR.
+Thanks for helping out! Bug reports, spell-list corrections and code are all welcome. By taking part you agree to the [Code of Conduct](CODE_OF_CONDUCT.md), which also lists what Blizzard allows in an add-on. Please read that section before you open a PR.
 
 ## Prerequisites
 
@@ -31,7 +31,7 @@ In game, type `/reload`, then:
 
 | Command | Use |
 |---|---|
-| `/accm test` | Preview the alert and voice |
+| `/accm test` | Preview the alert and sound |
 | `/accm debug` | Print one line per enemy cast, showing which values the game kept secret |
 | `/accm probe [spellID]` | Show what the game lets the addon read where you are now |
 | `/accm perf` | CPU, memory and active alert frames |
@@ -61,7 +61,7 @@ end
 
 - **Never branch on a secret.** Hand secrets straight to widget APIs that accept them, such as `SetAlphaFromBoolean` or `SetFormattedText`. A static scan in the test suite flags the common mistakes.
 - **Keep it light.** The addon only reacts to events and has no per-frame (OnUpdate) handlers. `tests/run.sh bench` shows the cost of a change.
-- **Spells:** a new CC spell goes in `AlertCCOnMe/Data/CastableCC.lua` under its class, with a `callout`. Each callout needs `<Key>.ogg` and `<Key>OnYou.ogg` in every built-in voice pack. `tools/generate_voices.ps1` renders them on Windows, and the tests fail if one is missing.
+- **Spells:** a new CC spell goes in `AlertCCOnMe/Data/CastableCC.lua` under its class, with any `related` IDs that share its name.
 - **Text** goes in `AlertCCOnMe/locales/enUS.lua`, never inline.
 - **Commits** follow [Conventional Commits](https://www.conventionalcommits.org/), for example `feat(spells): add Sleep Walk` or `fix(display): keep position after reload`.
 
