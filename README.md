@@ -71,10 +71,10 @@ David, Zira and Mark ship with the addon. A voice pack is a small add-on that ca
 
 | Merge into | Publishes | Where | Approval |
 |---|---|---|---|
-| `beta` (any change to the addon) | alpha build, versioned from git, e.g. `v0.1.0-3-gabc1234` | Alpha channel on CurseForge and Wago | none |
+| `beta` (any change to the addon) | alpha build, versioned from git, e.g. `v1.0.0-3-gabc1234` | Alpha channel on CurseForge and Wago | none |
 | `main` (the promotion PR from `beta`, merge commit) | tag `vX.Y.Z` | CurseForge, Wago, WoWInterface and GitHub Releases | required in the `stable` environment |
 
-The stable version comes from the [Conventional Commits](https://www.conventionalcommits.org/) since the last release (`feat` → minor, `fix`/`perf` → patch, `!` → major). A promotion that holds only `docs`, `chore` or `test` commits publishes nothing. After each merge into `beta`, a single `beta` → `main` promotion PR is opened or refreshed. It lists the commits waiting for a stable release and the version merging it will publish.
+The stable version comes from the [Conventional Commits](https://www.conventionalcommits.org/) since the last release (`feat` → minor, `fix`/`perf` → patch, `!` → major), starting at `v1.0.0` for the first release. A promotion that holds only `docs`, `chore` or `test` commits publishes nothing. After each merge into `beta`, a single `beta` → `main` promotion PR is opened or refreshed. It lists the commits waiting for a stable release and the version merging it will publish.
 
 Every PR is checked for commit format, luacheck, the busted suite and a package build, which is attached to the run so you can try it in game. Upload tokens (`CF_API_TOKEN`, `WAGO_API_TOKEN`) live in the `beta` environment for alphas and in `stable` with `WOWI_API_TOKEN`. A weekly workflow keeps the `.toc` `## Interface:` line on Blizzard's current live and PTR builds and opens a `fix(toc)` PR when they change.
 

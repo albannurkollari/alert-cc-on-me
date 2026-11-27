@@ -2,7 +2,7 @@ name: Alpha
 
 # Every merge into beta that changes the addon ships as an alpha build, the way DBM,
 # BigWigs, Details!, WeakAuras and Plater ship every push. It is untagged, so the packager
-# versions it from git (e.g. v0.1.0-3-gabc1234), CurseForge and Wago list it in their
+# versions it from git (e.g. v1.0.0-3-gabc1234), CurseForge and Wago list it in their
 # Alpha channel, and GitHub and WoWInterface (which need a tag) get nothing. Stable
 # releases are tagged from main (release.yml).
 on:
