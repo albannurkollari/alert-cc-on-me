@@ -83,9 +83,11 @@ local function HandleSlash(message)
 		ns.ApplySettings()
 		Util.Print(ns.db.Enabled and L.Enabled or L.Disabled)
 	elseif command == "status" then
-		Util.Print(("enabled=%s mode=%s preCast=%s voice=%s (%s) requireCC=%s"):format(
-			tostring(ns.db.Enabled), ns.db.Sound.Mode, tostring(ns.db.Sound.PreCast),
-			tostring(ns.db.Sound.Voice), ns.db.Sound.VoicePack, tostring(ns.db.RequireCC)))
+		local zone, active = ns.CastWatcher.ZoneState()
+		Util.Print(("enabled=%s zone=%s (%s) mode=%s preCast=%s voice=%s (%s) requireCC=%s"):format(
+			tostring(ns.db.Enabled), zone or "other", active and "on" or "off", ns.db.Sound.Mode,
+			tostring(ns.db.Sound.PreCast), tostring(ns.db.Sound.Voice), ns.db.Sound.VoicePack,
+			tostring(ns.db.RequireCC)))
 	else
 		Util.Print(L.Help)
 	end

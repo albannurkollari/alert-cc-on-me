@@ -17,7 +17,7 @@ local function OnChanged()
 	ns.ApplySettings()
 end
 
--- `section` is nil for root keys, else "Visual" / "Sound".
+-- `section` is nil for root keys, else "Zones" / "Visual" / "Sound".
 local function Register(section, key, label, varType)
 	local tbl = section and ns.db[section] or ns.db
 	local defaults = section and ns.Defaults[section] or ns.Defaults
@@ -224,6 +224,12 @@ function SettingsUI.Register()
 	Button(layout, L.BtnSpellList, L.BtnSpellList, function()
 		SettingsUI.OpenSpellList()
 	end)
+
+	Header(layout, L.SectionZones)
+	Checkbox("Zones", "World", L.OptZoneWorld)
+	Checkbox("Zones", "Arena", L.OptZoneArena, L.OptZoneArenaTip)
+	Checkbox("Zones", "Battleground", L.OptZoneBattleground, L.OptZoneBattlegroundTip)
+	Checkbox("Zones", "Dungeon", L.OptZoneDungeon, L.OptZoneDungeonTip)
 
 	Header(layout, L.SectionVisual)
 	Checkbox("Visual", "ShowIcon", L.OptShowIcon)
