@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/images/banner.png" alt="Alert CC On Me" width="800"></p>
+
 # Alert CC On Me
 
 A World of Warcraft Retail addon (Midnight, 12.1) that warns you **while** an enemy is casting crowd control at you (Polymorph, Cyclone, Fear, Hex, Mind Control, Sleep Walk and more), so you still have time to interrupt, stun, or break line of sight before it lands.

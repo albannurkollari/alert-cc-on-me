@@ -11,6 +11,7 @@ on:
     # What .pkgmeta keeps out of the package: changing only these ships nothing new.
     paths-ignore:
       - ".github/**"
+      - "docs/**"
       - "scripts/**"
       - "tests/**"
       - "tools/**"
