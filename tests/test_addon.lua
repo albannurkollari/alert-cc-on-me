@@ -598,3 +598,34 @@ T["fuzz: free-text inputs never raise (add/remove/slash/text format)"] = functio
 	local ok, err = pcall(StaticPopupDialogs.ALERTCCONME_ADD_SPELL.OnAccept, { EditBox = { GetText = function() return nil end } })
 	assert(ok, "empty popup accepted: " .. tostring(err))
 end
+
+T["zone toggles: alerts run only where enabled"] = function()
+	boot()
+	local function castAtMe()
+		ns.Display.HideAll()
+		M.units.target = { hostile = true, isPlayer = true, unitTargetIsMe = true, cast = polyCast() }
+		M.fireUnit("UNIT_SPELLCAST_START", "target")
+		return visible("target")
+	end
+	local function enter(instanceType)
+		M.instanceType = instanceType
+		M.fire("PLAYER_ENTERING_WORLD")
+	end
+
+	enter("pvp")
+	assert(castAtMe(), "battleground on by default")
+	ns.db.Zones.Battleground = false
+	ns.ApplySettings()
+	assert(not castAtMe(), "battleground off after toggle")
+	eq(#M.sounds, 1, "no sound while off")
+
+	enter("none")
+	assert(castAtMe(), "open world still on")
+	enter("raid")
+	assert(not castAtMe(), "raid has no toggle and stays off")
+	enter("party")
+	assert(castAtMe(), "dungeon on")
+	local zone, active = ns.CastWatcher.ZoneState()
+	eq(zone, "Dungeon", "zone key")
+	eq(active, true, "active")
+end
