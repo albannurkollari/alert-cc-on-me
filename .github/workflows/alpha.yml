@@ -12,6 +12,7 @@ on:
     paths-ignore:
       - ".github/**"
       - "docs/**"
+      - "markets/**"
       - "scripts/**"
       - "tests/**"
       - "tools/**"
@@ -21,6 +22,7 @@ on:
       - "CODE_OF_CONDUCT.md"
       - ".busted"
       - ".luacheckrc"
+  # A manual run has no PR, so it publishes to all markets.
   workflow_dispatch:
 
 concurrency:
@@ -34,15 +36,51 @@ jobs:
   test:
     uses: ./.github/workflows/ci.yml
 
-  publish:
-    name: Publish alpha
-    needs: test
+  plan:
+    name: Pick markets
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      # Reads the labels of the PR this merge came from.
+      pull-requests: read
+    outputs:
+      markets: ${{ steps.plan.outputs.markets }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # Market labels on the merged PR (CurseForge, Wago...) pick those markets only.
+      - id: plan
+        name: Read market labels
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          labels=""
+          if [ "$GITHUB_EVENT_NAME" = push ]; then
+            labels=$(gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/pulls" \
+              --jq ".[] | select(.merge_commit_sha == \"$GITHUB_SHA\") | .labels[].name")
+          fi
+          # shellcheck disable=SC2086 # one argument per label
+          markets=$(scripts/markets.sh plan alpha $labels 2>>"$GITHUB_STEP_SUMMARY")
+          echo "markets=$markets" >> "$GITHUB_OUTPUT"
+
+  # One job per market, so a failed upload is retried alone ("Re-run failed jobs")
+  # without uploading the same build twice to the markets that took it.
+  publish:
+    name: Alpha to ${{ matrix.name }}
+    needs: [test, plan]
+    if: needs.plan.outputs.markets != '[]'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.markets) }}
     # Holds the CurseForge and Wago tokens.
     environment: beta
     env:
-      CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-      WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
+      # Only this job's market gets a token, so the packager uploads there alone.
+      CF_API_TOKEN: ${{ matrix.market == 'curseforge' && secrets.CF_API_TOKEN || '' }}
+      WAGO_API_TOKEN: ${{ matrix.market == 'wago' && secrets.WAGO_API_TOKEN || '' }}
+      MARKET: ${{ matrix.market }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -56,6 +94,15 @@ jobs:
             echo "current=true" >> "$GITHUB_OUTPUT"
           else
             echo "No upload: beta has moved on; its run uploads the newer build." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Check token
+        if: steps.tip.outputs.current == 'true'
+        run: |
+          secret=$(yq -r .secret "markets/$MARKET.yml")
+          if [ -z "${!secret}" ]; then
+            echo "::error::No $secret secret in the beta environment."
+            exit 1
           fi
 
       - if: steps.tip.outputs.current == 'true'

@@ -78,6 +78,8 @@ The stable version comes from the [Conventional Commits](https://www.conventiona
 
 Every PR is checked for commit format, luacheck, the busted suite and a package build, which is attached to the run so you can try it in game. Upload tokens (`CF_API_TOKEN`, `WAGO_API_TOKEN`) live in the `beta` environment for alphas and in `stable` with `WOWI_API_TOKEN`. A weekly workflow keeps the `.toc` `## Interface:` line on Blizzard's current live and PTR builds and opens a `fix(toc)` PR when they change.
 
+Each market has a config in [`markets/`](markets): its channels, the `.toc` line holding its project ID, its token and its listing rules, which every PR checks (for example CurseForge's 400×400 avatar). Each market publishes from its own job, so a failed upload is retried alone. A merged PR labelled `CurseForge`, `Wago` or `WoWInterface` publishes to those markets only, one label or several; with no market label it goes to all of them. Stable releases always get a GitHub Release. A market is skipped until its project ID is in the `.toc`.
+
 ## How to contribute
 
 Bug reports, spell-list fixes, voice packs and code are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) explains how to set up the repo, run the addon locally and run the tests. Please follow the [Code of Conduct](CODE_OF_CONDUCT.md), which includes Blizzard's rules for add-ons.
