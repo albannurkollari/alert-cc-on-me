@@ -16,6 +16,8 @@ local function NormalizeDb(db)
 	if not Util.IsSafeFormat(db.Visual.TextFormat) then
 		db.Visual.TextFormat = ns.Defaults.Visual.TextFormat
 	end
+	-- 1.0.0 had voice callouts and shipped its own sound files.
+	db.Sound.Voice, db.Sound.VoicePack, db.Sound.File = nil, nil, nil
 end
 
 -- Called after any option change.
@@ -26,11 +28,7 @@ end
 
 function ns.RunTest()
 	ns.Display.ShowTest(3)
-	if ns.db.Sound.Voice then
-		PlaySoundFile(ns.Sound.VoicePath("SheepOnYou"), ns.db.Sound.Channel)
-	else
-		ns.Sound.Play(ns.db.Sound.File, ns.db.Sound.Channel)
-	end
+	ns.Sound.Play(ns.db.Sound.Alert, ns.db.Sound.Channel)
 end
 
 local function SetLocked(locked)
@@ -84,10 +82,9 @@ local function HandleSlash(message)
 		Util.Print(ns.db.Enabled and L.Enabled or L.Disabled)
 	elseif command == "status" then
 		local zone, active = ns.CastWatcher.ZoneState()
-		Util.Print(("enabled=%s zone=%s (%s) mode=%s preCast=%s voice=%s (%s) requireCC=%s"):format(
+		Util.Print(("enabled=%s zone=%s (%s) mode=%s preCast=%s sound=%s requireCC=%s"):format(
 			tostring(ns.db.Enabled), zone or "other", active and "on" or "off", ns.db.Sound.Mode,
-			tostring(ns.db.Sound.PreCast), tostring(ns.db.Sound.Voice), ns.db.Sound.VoicePack,
-			tostring(ns.db.RequireCC)))
+			tostring(ns.db.Sound.PreCast), ns.db.Sound.Alert, tostring(ns.db.RequireCC)))
 	else
 		Util.Print(L.Help)
 	end

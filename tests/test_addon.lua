@@ -51,9 +51,41 @@ T["open world: readable polymorph on me shows alert and plays sound"] = function
 	M.fireUnit("UNIT_SPELLCAST_START", "target")
 	assert(visible("target"), "alert visible")
 	eq(#M.sounds, 1, "one pre-cast sound")
-	eq(M.sounds[1], [[Interface\AddOns\AlertCCOnMe\Media\Voice\David\SheepOnYou.ogg]], "voice callout")
+	eq(M.sounds[1], 8959, "default sound: raid warning")
 	local slot = ns.Display.GetSlot("target")
 	eq(slot.text.formatArgs[1], "Polymorph", "spell name passed to text")
+end
+
+T["alert sound: game sounds only, picking one previews it, old settings migrate"] = function()
+	local seen = {}
+	for _, option in ipairs(ns.AlertSounds) do
+		assert(option.Text and (type(option.Kit) == "number") ~= (type(option.File) == "number"),
+			"label and exactly one of Kit or File for " .. option.Value)
+		assert(not seen[option.Value], "duplicate " .. option.Value)
+		seen[option.Value] = true
+	end
+	assert(seen[ns.Defaults.Sound.Alert], "default is in the list")
+
+	AlertCCOnMeDB = { Sound = { Voice = true, VoicePack = "David", File = "Alarm.ogg" } }
+	boot()
+	eq(ns.db.Sound.Alert, "RAID_WARNING", "default sound")
+	eq(ns.db.Sound.Voice, nil, "voice setting dropped")
+	eq(ns.db.Sound.VoicePack, nil, "voice pack setting dropped")
+	eq(ns.db.Sound.File, nil, "sound file setting dropped")
+
+	local setting = M.settings.AlertCCOnMe_Sound_Alert
+	setting.tbl.Alert = "READY_CHECK"
+	setting:cb("READY_CHECK")
+	eq(M.sounds[1], 8960, "picking a sound plays it")
+	SlashCmdList.ALERTCCONME("test")
+	eq(M.sounds[2], 8960, "/accm test plays the chosen sound")
+
+	ns.db.Sound.Alert = "Alarm.ogg"
+	eq(ns.Sound.Find(ns.db.Sound.Alert).Kit, 8959, "unknown sound plays the default")
+
+	setting.tbl.Alert = "HORN_WARSONG"
+	setting:cb("HORN_WARSONG")
+	eq(M.sounds[3], "file:1036067", "file sounds play by file ID")
 end
 
 T["open world: readable polymorph on someone else stays hidden and silent"] = function()
@@ -264,26 +296,14 @@ T["edit box: shift-drag moves, shift-wheel scales, right-click locks"] = functio
 	assert(not visible("test"), "preview hidden after lock")
 end
 
-T["voice: hidden spell falls back to alarm, off uses alarm, unknown CC is generic"] = function()
+T["sound: a hidden spell in arena plays the chosen sound"] = function()
 	boot()
 	ns.db.Sound.Mode = ns.SoundModes.ANY_PLAYER_CAST
+	ns.db.Sound.Alert = "ALARM_CLOCK_WARNING_3"
 	M.units.arena1 = { hostile = true, isPlayer = true, cast = polyCast({ secret = true, onMeSecret = true }) }
 	M.fireUnit("UNIT_SPELLCAST_START", "arena1")
 	eq(#M.sounds, 1, "any-cast sound in arena")
-	assert(M.sounds[1]:find("Alarm.ogg", 1, true), "secret spell -> alarm, got " .. M.sounds[1])
-
-	local clip = ns.Sound.PickCallout({ spellID = 999999 }, { isCCReadable = true, onMeReadable = true })
-	eq(clip, "CCOnYou", "readable CC not in list")
-	eq(ns.Sound.PickCallout({ spellID = 118 }, { isCCReadable = true }), "Sheep", "target unknown -> no 'on you'")
-	eq(ns.Sound.PickCallout({ spellID = S(118) }, { isCCReadable = true, onMeReadable = true }), "CCOnYou", "secret ID never indexed")
-	eq(ns.Sound.PickCallout({ spellID = 116 }, { isCCReadable = false, onMeReadable = true }), nil, "non-CC with RequireCC")
-	ns.db.RequireCC = false
-	eq(ns.Sound.PickCallout({ spellID = 116 }, { isCCReadable = false, onMeReadable = true }), "CastOnYou", "non-CC without RequireCC")
-
-	ns.db.Sound.VoicePack = "Zira"
-	assert(ns.Sound.VoicePath("FearOnYou"):find([[Voice\Zira\FearOnYou.ogg]], 1, true), "pack selection")
-	ns.db.Sound.VoicePack = "Bogus"
-	assert(ns.Sound.VoicePath("FearOnYou"):find([[Voice\David\FearOnYou.ogg]], 1, true), "unknown pack falls back")
+	eq(M.sounds[1], 12889, "secret spell -> the chosen sound")
 end
 
 T["list prints every listed CC with state and flags name mismatches"] = function()
@@ -292,9 +312,9 @@ T["list prints every listed CC with state and flags name mismatches"] = function
 	ns.SpellList.SetEnabled(5782, false)
 	SlashCmdList.ALERTCCONME("list")
 	local text = table.concat(M.chat, "\n")
-	assert(text:find("118  Polymorph -> Polymorph -> \"Sheep\"  (+38 related IDs)", 1, true), "poly line")
-	assert(text:find("5782  Fear -> Fear -> \"Fear\"  (+3 related IDs)  |cffff9900OFF", 1, true), "off tag")
-	assert(text:find("710  Banish -> Not Banish -> \"Banish\"  |cffff5555MISMATCH", 1, true), "mismatch flagged")
+	assert(text:find("118  Polymorph -> Polymorph  (+38 related IDs)", 1, true), "poly line")
+	assert(text:find("5782  Fear -> Fear  (+3 related IDs)  |cffff9900OFF", 1, true), "off tag")
+	assert(text:find("710  Banish -> Not Banish  |cffff5555MISMATCH", 1, true), "mismatch flagged")
 end
 
 local function spellRow(spellID)
@@ -354,7 +374,6 @@ T["spell list: native rows toggle, remove, add and restore"] = function()
 	local custom = spellRow(5555)
 	assert(custom and custom:ShouldShow(), "custom row added")
 	assert(custom.setting.name:find("(added)", 1, true), "custom tag")
-	eq(ns.Sound.PickCallout({ spellID = 5555 }, { isCCReadable = true, onMeReadable = true }), "CCOnYou", "custom spell gets generic callout")
 
 	M.chat = {}
 	SlashCmdList.ALERTCCONME("add 4242")
@@ -423,24 +442,6 @@ T["spell list: grouped under class headers with icon, hidden when empty"] = func
 	local mageAt = text:find("classicon-mage", 1, true)
 	local polyAt = text:find("118  Polymorph", 1, true)
 	assert(mageAt and polyAt and mageAt < polyAt, "list groups under class header")
-end
-
-T["voice packs: add-ons register extra packs, unknown packs fall back to built-in"] = function()
-	boot()
-	eq(#ns.VoicePacks, 3, "three built-in packs")
-	assert(AlertCCOnMe_RegisterVoicePack("Grampa", [[Interface\AddOns\AlertCCOnMe_Voice_Grampa\Voice]]), "registered")
-	assert(not AlertCCOnMe_RegisterVoicePack("Grampa", [[Interface\AddOns\Other\]]), "duplicate name refused")
-	assert(not AlertCCOnMe_RegisterVoicePack("David", [[Interface\AddOns\Other\]]), "built-in name refused")
-	assert(not AlertCCOnMe_RegisterVoicePack("", "x") and not AlertCCOnMe_RegisterVoicePack("x", nil), "bad args refused")
-
-	ns.db.Sound.VoicePack = "Grampa"
-	eq(ns.Sound.VoicePath("HexOnYou"), [[Interface\AddOns\AlertCCOnMe_Voice_Grampa\Voice\HexOnYou.ogg]], "pack path, trailing slash added")
-	M.units.target = { hostile = true, isPlayer = true, unitTargetIsMe = true, cast = polyCast() }
-	M.fireUnit("UNIT_SPELLCAST_START", "target")
-	eq(M.sounds[1], [[Interface\AddOns\AlertCCOnMe_Voice_Grampa\Voice\SheepOnYou.ogg]], "pre-cast uses the registered pack")
-
-	ns.db.Sound.VoicePack = "Uninstalled"
-	eq(ns.Sound.VoicePath("HexOnYou"), [[Interface\AddOns\AlertCCOnMe\Media\Voice\David\HexOnYou.ogg]], "missing pack falls back to David")
 end
 
 T["spell row template: label fills the width, on/off and X are narrow action columns"] = function()

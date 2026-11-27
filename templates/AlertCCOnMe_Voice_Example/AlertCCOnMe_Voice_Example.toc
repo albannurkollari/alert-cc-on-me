@@ -1,7 +1,0 @@
-## Interface: 120100, 120105
-## Title: Alert CC On Me - Voice: Example
-## Notes: Extra voice pack for Alert CC On Me.
-## Dependencies: AlertCCOnMe
-## Version: 1.0.0
-
-Register.lua

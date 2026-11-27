@@ -13,17 +13,19 @@ local sectionHeaders = {} -- class token or UNCATEGORIZED -> header initializer
 local rowSection = {} -- spellID -> section its row sits in
 local isRow = {} -- row initializer -> true
 
-local function OnChanged()
-	ns.ApplySettings()
-end
-
--- `section` is nil for root keys, else "Zones" / "Visual" / "Sound".
-local function Register(section, key, label, varType)
+-- `section` is nil for root keys, else "Zones" / "Visual" / "Sound". `onChange` also
+-- gets the new value, after the settings are applied.
+local function Register(section, key, label, varType, onChange)
 	local tbl = section and ns.db[section] or ns.db
 	local defaults = section and ns.Defaults[section] or ns.Defaults
 	local variable = addonName .. "_" .. (section or "Root") .. "_" .. key
 	local setting = Settings.RegisterAddOnSetting(category, variable, key, tbl, varType, label, defaults[key])
-	setting:SetValueChangedCallback(OnChanged)
+	setting:SetValueChangedCallback(function(_, value)
+		ns.ApplySettings()
+		if onChange then
+			onChange(value)
+		end
+	end)
 	return setting
 end
 
@@ -41,8 +43,8 @@ local function Slider(section, key, label, minValue, maxValue, step, tooltip, fo
 	Settings.CreateSlider(category, setting, options, tooltip)
 end
 
-local function Dropdown(section, key, label, entries, tooltip)
-	local setting = Register(section, key, label, Settings.VarType.String)
+local function Dropdown(section, key, label, entries, tooltip, onChange)
+	local setting = Register(section, key, label, Settings.VarType.String, onChange)
 	local function GetOptions()
 		local container = Settings.CreateControlTextContainer()
 		for _, entry in ipairs(entries) do
@@ -241,14 +243,15 @@ function SettingsUI.Register()
 
 	Header(layout, L.SectionSound)
 	Checkbox("Sound", "PreCast", L.OptPreCast, L.OptPreCastTip)
-	Checkbox("Sound", "Voice", L.OptVoice, L.OptVoiceTip)
-	Dropdown("Sound", "VoicePack", L.OptVoicePack, ns.VoicePacks)
 	Dropdown("Sound", "Mode", L.OptSoundMode, {
 		{ Value = ns.SoundModes.CONFIRMED, Text = L.ModeConfirmed, Tooltip = L.ModeConfirmedTip },
 		{ Value = ns.SoundModes.CC_ANY_TARGET, Text = L.ModeAnyTarget, Tooltip = L.ModeAnyTargetTip },
 		{ Value = ns.SoundModes.ANY_PLAYER_CAST, Text = L.ModeAnyPlayer, Tooltip = L.ModeAnyPlayerTip },
 	})
-	Dropdown("Sound", "File", L.OptSoundFile, ns.SoundFiles)
+	-- Picking a sound plays it, so players can browse the list by ear.
+	Dropdown("Sound", "Alert", L.OptSoundFile, ns.AlertSounds, L.OptSoundFileTip, function(value)
+		ns.Sound.Play(value, ns.db.Sound.Channel)
+	end)
 
 	RegisterSpellList()
 	Settings.RegisterAddOnCategory(category)

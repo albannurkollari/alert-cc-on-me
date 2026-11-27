@@ -7,7 +7,7 @@ A World of Warcraft Retail addon (Midnight, 12.1) that warns you **while** an en
 ## Features
 
 - **On-screen alert:** "Polymorph on YOU!" appears only when the cast is crowd control *and* aimed at you, in arena too.
-- **Voice callouts:** "Sheep on you!", "Cyclone on you!" in three built-in voices. Other add-ons can register more voice packs.
+- **Alert sound:** pick one of the game's own sounds (raid warning, boss whisper, ready check, alarm clock...). The addon ships no audio, so it stays tiny.
 - **Spell list by class:** each CC spell sits under its caster's class with the class icon and color. Turn spells on or off, remove them, or add your own (`/accm add 12345 monk`).
 - **Choose where it runs:** open world, arena, battleground and dungeon each have their own on/off setting.
 - **Movable and scalable:** `/accm move`, then Shift+drag to move, Shift+mouse wheel to scale, right-click to lock.
@@ -23,13 +23,13 @@ A World of Warcraft Retail addon (Midnight, 12.1) that warns you **while** an en
 
 Since Midnight, the game hands addons enemy cast data as *secret values*. An addon may pass them to some UI functions but cannot read or compare them. The alert is built from nested frames whose transparency comes straight from two secret answers ("is it crowd control?" and "is it aimed at me?"), so it shows only when both are true. The addon itself never learns either answer.
 
-Sound can't be decided from a secret value, so the voice callout plays only when the game leaves the spell readable:
+Sound can't be decided from a secret value, so by default the sound plays only when the game leaves the spell readable:
 
 | | Open world | Arena / restricted content |
 |---|---|---|
 | On-screen alert | yes | yes |
-| Voice callout naming the spell | yes | only for spells the game keeps readable |
-| Alarm on any enemy cast (opt-in sound mode) | yes | yes |
+| Sound when crowd control is cast at you | yes | only for spells the game keeps readable |
+| Sound on any enemy cast (opt-in sound mode) | yes | yes |
 
 `/accm probe` (run it in a Skirmish) lists which CC spells stay readable in arena.
 
@@ -42,7 +42,7 @@ Copy the `AlertCCOnMe` folder into `World of Warcraft\_retail_\Interface\AddOns\
 | Command | Action |
 |---|---|
 | `/accm` | Open settings |
-| `/accm test` | Preview the alert and voice |
+| `/accm test` | Preview the alert and sound |
 | `/accm move` / `lock` | Move and scale the alert / lock it |
 | `/accm spells` | Open the spell list |
 | `/accm add <id> [class]` / `remove <id>` | Add (e.g. `add 198898 monk`) or remove a spell |
@@ -52,17 +52,11 @@ Copy the `AlertCCOnMe` folder into `World of Warcraft\_retail_\Interface\AddOns\
 | `/accm perf` | CPU (client profiler), memory, active alert frames |
 | `/accm on` / `off` / `status` | Enable, disable, show state |
 
-## Voice packs
-
-David, Zira and Mark ship with the addon. A voice pack is a small add-on that calls
-`AlertCCOnMe_RegisterVoicePack(name, path)` and holds one `.ogg` per callout. See [`templates/AlertCCOnMe_Voice_Example`](templates/AlertCCOnMe_Voice_Example).
-
 ## Development
 
 | Path | Purpose |
 |---|---|
 | `tests/run.sh` | luacheck + [busted](https://lunarmodules.github.io/busted/) under Lua 5.1, the addon loaded against a WoW API mock that raises on any misuse of secret values. Uses local `busted`/`luacheck` if installed, otherwise Docker (`tests/Dockerfile`). `tests/run.sh bench` runs the micro-benchmark |
-| `tools/generate_voices.ps1` | Renders voice clips with Windows speech voices and ffmpeg |
 | `install.sh` | Runs the tests, then copies the addon into your AddOns folder (`WOW_ADDONS` overrides the path) |
 
 ## Releasing
@@ -82,7 +76,7 @@ Each market has a config in [`markets/`](markets): its channels, the `.toc` line
 
 ## How to contribute
 
-Bug reports, spell-list fixes, voice packs and code are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) explains how to set up the repo, run the addon locally and run the tests. Please follow the [Code of Conduct](CODE_OF_CONDUCT.md), which includes Blizzard's rules for add-ons.
+Bug reports, spell-list fixes and code are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) explains how to set up the repo, run the addon locally and run the tests. Please follow the [Code of Conduct](CODE_OF_CONDUCT.md), which includes Blizzard's rules for add-ons.
 
 ## License
 

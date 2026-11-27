@@ -34,7 +34,7 @@ This project is an add-on for Blizzard Entertainment's World of Warcraft, so eve
 * Harm realm performance or other players' games, for example by spamming chat, needlessly loading from disk, or slowing the frame rate
 * Contain material beyond the ESRB "T" (Teen) rating, which includes voice clips, text, and images
 * Automate gameplay, act on the player's behalf, or otherwise break the Terms of Use or EULA. This includes working around the restrictions the game puts on add-ons, such as secret values, protected functions, or combat lockdown
-* Bundle in-game music, sound, art, or other copyrighted material without permission. Voice packs and media must be original work or carry a license that allows redistribution, credited in `AlertCCOnMe/NOTICE`
+* Bundle in-game music, sound, art, or other copyrighted material without permission. Media must be original work or carry a license that allows redistribution, credited in `AlertCCOnMe/NOTICE`
 
 Blizzard may disable any add-on functionality at its sole discretion, so a change that only works by relying on unintended game behavior will not be accepted.
 
