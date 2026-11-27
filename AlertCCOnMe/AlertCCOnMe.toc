@@ -1,4 +1,4 @@
-## Interface: 120100, 120105
+## Interface: 120105, 120107
 ## Title: Alert CC On Me
 ## Notes: Visual and sound warning when an enemy is casting crowd control on you.
 ## Author: Erenndriel
