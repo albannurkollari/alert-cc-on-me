@@ -6,7 +6,7 @@
 ## SavedVariables: AlertCCOnMeDB
 ## IconTexture: Interface\Icons\Spell_Nature_Polymorph
 ## AddonCompartmentFunc: AlertCCOnMe_OnCompartmentClick
-## X-License: Apache-2.0
+## X-License: MIT
 
 Core\Init.lua
 Core\Defaults.lua

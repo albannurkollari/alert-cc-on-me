@@ -40,6 +40,11 @@ describe("data", function()
 		end
 		assert.are.same({}, missing)
 	end)
+
+	-- The addon folder carries its own copy so a plain folder install keeps the license.
+	it("the addon's LICENSE matches the repo's", function()
+		assert.are.equal(helper.read("LICENSE"), helper.read(helper.ADDON .. "LICENSE"))
+	end)
 end)
 
 -- Truth-testing or comparing a secret cannot be trapped by a Lua mock, so flag the

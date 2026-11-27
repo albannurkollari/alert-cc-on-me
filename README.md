@@ -70,7 +70,7 @@ After each merge into `beta`, a single `beta` → `main` promotion PR is opened 
 
 ## License
 
-[Apache-2.0](LICENSE). See [`AlertCCOnMe/NOTICE`](AlertCCOnMe/NOTICE) for attributions.
+[MIT](LICENSE) © 2026 Alban Nurkollari. See [`AlertCCOnMe/NOTICE`](AlertCCOnMe/NOTICE) for attributions.
 
 ---
 
