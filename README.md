@@ -66,7 +66,7 @@ David, Zira and Mark ship with the addon. A voice pack is a small add-on that ca
 | `beta` | `vX.Y.Z-beta.N` to the beta channel | none |
 | `main` (the promotion PR from `beta`, merge commit) | `vX.Y.Z` to the stable channel | required in the `stable` environment |
 
-After each merge into `beta`, a single `beta` → `main` promotion PR is opened or refreshed. It lists the commits and beta builds waiting for a stable release and the version merging it will publish. Every PR is checked for commit format, luacheck, the busted suite and a package build, which is attached to the run so you can try it in game. Upload tokens (`CF_API_TOKEN`, `WAGO_API_TOKEN`, `WOWI_API_TOKEN`) live in the `beta` and `stable` environments. Every release is also published on GitHub Releases.
+After each merge into `beta`, a single `beta` → `main` promotion PR is opened or refreshed. It lists the commits and beta builds waiting for a stable release and the version merging it will publish. Every PR is checked for commit format, luacheck, the busted suite and a package build, which is attached to the run so you can try it in game. Upload tokens (`CF_API_TOKEN`, `WAGO_API_TOKEN`, `WOWI_API_TOKEN`) live in the `beta` and `stable` environments. Every release is also published on GitHub Releases. A weekly workflow keeps the `.toc` `## Interface:` line on Blizzard's current live and PTR builds and opens a `fix(toc)` PR when they change.
 
 ## How to contribute
 

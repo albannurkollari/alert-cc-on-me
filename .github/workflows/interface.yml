@@ -1,0 +1,78 @@
+name: Interface versions
+
+# Keeps the .toc "## Interface:" line on Blizzard's current Retail live and PTR builds.
+# A change arrives as a fix(toc) PR into beta, so merging it publishes a beta that the
+# game doesn't flag as "out of date".
+on:
+  schedule:
+    # Wednesdays, after the weekly US and EU maintenance.
+    - cron: "0 6 * * 3"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: interface
+  cancel-in-progress: false
+
+jobs:
+  update:
+    name: Update interface versions
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+      # Dispatches CI for the PR (see below).
+      actions: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: beta
+
+      - uses: p3lim/toc-interface-updater@v4
+        with:
+          flavor: retail
+          ptr: true
+
+      - id: versions
+        name: Describe the versions
+        run: |
+          interface=$(sed -n 's/^## Interface: *//p' AlertCCOnMe/AlertCCOnMe.toc | tr -d '\r')
+          # 120107 -> 12.1.7
+          readable=$(tr ',' '\n' <<<"$interface" \
+            | awk '{ n = $1; printf "%s%d.%d.%d", sep, n / 10000, (n / 100) % 100, n % 100; sep = ", " }')
+          echo "interface=$interface" >> "$GITHUB_OUTPUT"
+          echo "readable=$readable" >> "$GITHUB_OUTPUT"
+
+      # Does nothing when the updater changed nothing.
+      - id: pr
+        uses: peter-evans/create-pull-request@v8
+        with:
+          base: beta
+          branch: automation/toc-interface
+          delete-branch: true
+          sign-commits: true
+          labels: fix
+          commit-message: "fix(toc): support WoW ${{ steps.versions.outputs.readable }}"
+          title: "fix(toc): support WoW ${{ steps.versions.outputs.readable }}"
+          body: |
+            ## Summary
+
+            - **Sets `## Interface:` to `${{ steps.versions.outputs.interface }}`.**
+              These are Blizzard's current Retail live and PTR builds (${{ steps.versions.outputs.readable }}).
+            - **Keeps the addon from showing as "out of date" in game.**
+              Merging publishes a beta, and the packager maps the new versions to CurseForge's game versions.
+
+            _Opened by the weekly interface workflow._
+
+      # A PR opened or updated with GITHUB_TOKEN triggers no pull_request workflows, but a
+      # dispatch does: CI on the branch reports the required checks on the PR's head commit.
+      - name: Run CI on the PR
+        if: steps.pr.outputs.pull-request-operation == 'created' || steps.pr.outputs.pull-request-operation == 'updated'
+        env:
+          BRANCH: ${{ steps.pr.outputs.pull-request-branch }}
+        run: gh workflow run ci.yml --ref "$BRANCH"

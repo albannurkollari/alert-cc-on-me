@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
   workflow_call:
-  # Dispatched by promote.yml for the PR it opens (see there).
+  # Dispatched by promote.yml and interface.yml for the PRs they open (see there).
   workflow_dispatch:
 
 permissions:
@@ -25,9 +25,12 @@ jobs:
           BASE: ${{ github.event.pull_request.base.sha }}
           HEAD: ${{ github.event.pull_request.head.sha }}
         run: |
-          # Dispatched on beta for the promotion PR: everything not yet on main.
+          # Dispatched for a PR a workflow opened: beta -> main (promote.yml) or a
+          # branch -> beta (interface.yml). Check everything not yet on the target.
           if [ -z "$BASE" ]; then
-            BASE=$(git merge-base origin/main HEAD)
+            target=beta
+            if [ "$GITHUB_REF_NAME" = beta ]; then target=main; fi
+            BASE=$(git merge-base "origin/$target" HEAD)
             HEAD=$(git rev-parse HEAD)
           fi
           types='feat|fix|perf|docs|chore|test|ci|build|refactor|style|revert'
