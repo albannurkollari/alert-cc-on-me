@@ -3,6 +3,8 @@ name: CI
 on:
   pull_request:
   workflow_call:
+  # Dispatched by promote.yml for the PR it opens (see there).
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -10,7 +12,7 @@ permissions:
 jobs:
   commits:
     name: Conventional commits
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
@@ -23,6 +25,11 @@ jobs:
           BASE: ${{ github.event.pull_request.base.sha }}
           HEAD: ${{ github.event.pull_request.head.sha }}
         run: |
+          # Dispatched on beta for the promotion PR: everything not yet on main.
+          if [ -z "$BASE" ]; then
+            BASE=$(git merge-base origin/main HEAD)
+            HEAD=$(git rev-parse HEAD)
+          fi
           types='feat|fix|perf|docs|chore|test|ci|build|refactor|style|revert'
           bad=$(git log --no-merges --format='%h %s' "$BASE..$HEAD" \
             | grep -vE "^[0-9a-f]+ ($types)(\([a-z0-9-]+\))?!?: .+" || true)
