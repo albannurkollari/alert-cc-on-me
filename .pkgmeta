@@ -10,3 +10,5 @@ ignore:
   - tools
   - templates
   - install.sh
+  - CONTRIBUTING.md
+  - CODE_OF_CONDUCT.md

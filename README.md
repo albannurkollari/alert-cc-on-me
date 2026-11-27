@@ -68,6 +68,10 @@ David, Zira and Mark ship with the addon. A voice pack is a small add-on that ca
 
 After each merge into `beta`, a single `beta` → `main` promotion PR is opened or refreshed. It lists the commits and beta builds waiting for a stable release and the version merging it will publish. Every PR is checked for commit format, luacheck, the busted suite and a package build, which is attached to the run so you can try it in game. Upload tokens (`CF_API_TOKEN`, `WAGO_API_TOKEN`, `WOWI_API_TOKEN`) live in the `beta` and `stable` environments. Every release is also published on GitHub Releases.
 
+## How to contribute
+
+Bug reports, spell-list fixes, voice packs and code are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) explains how to set up the repo, run the addon locally and run the tests. Please follow the [Code of Conduct](CODE_OF_CONDUCT.md), which includes Blizzard's rules for add-ons.
+
 ## License
 
 [MIT](LICENSE) © 2026 Alban Nurkollari. See [`AlertCCOnMe/NOTICE`](AlertCCOnMe/NOTICE) for attributions.
