@@ -1,8 +1,8 @@
 name: Interface versions
 
 # Keeps the .toc "## Interface:" line on Blizzard's current Retail live and PTR builds.
-# A change arrives as a fix(toc) PR into beta, so merging it publishes a beta that the
-# game doesn't flag as "out of date".
+# A change arrives as a fix(toc) PR into beta: merging it ships an alpha build that the
+# game doesn't flag as "out of date", and the next stable release carries it.
 on:
   schedule:
     # Wednesdays, after the weekly US and EU maintenance.
@@ -65,7 +65,7 @@ jobs:
             - **Sets `## Interface:` to `${{ steps.versions.outputs.interface }}`.**
               These are Blizzard's current Retail live and PTR builds (${{ steps.versions.outputs.readable }}).
             - **Keeps the addon from showing as "out of date" in game.**
-              Merging publishes a beta, and the packager maps the new versions to CurseForge's game versions.
+              Merging ships an alpha build; the packager maps the new versions to CurseForge's game versions.
 
             _Opened by the weekly interface workflow._
 

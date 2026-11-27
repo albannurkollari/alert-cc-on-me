@@ -71,4 +71,4 @@ end
 2. Make sure `tests/run.sh` passes. CI must be green before a merge: commit format, luacheck, busted and a package build.
 3. Describe what changed and how you checked it in game, if you could. Each CI run attaches the packaged addon (`AlertCCOnMe-<version>.zip`, kept 14 days) to the run's summary page, so you can unzip it into `Interface/AddOns/` and try it.
 
-Your commit types decide the next version, so pick them carefully: `feat` and `fix` publish a beta when merged, while `docs`, `chore` and `test` don't. Merged changes collect in an automatic `beta` → `main` promotion PR, which the maintainer merges to publish a stable release (see the README).
+Every merged change to the addon ships as an alpha build for testers on CurseForge and Wago. Merged changes also collect in an automatic `beta` → `main` promotion PR. When the maintainer merges it, your commit types decide the stable version (`feat` → minor, `fix` → patch), so pick them carefully; `docs`, `chore` and `test` alone publish nothing (see the README).
