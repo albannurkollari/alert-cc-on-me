@@ -4,7 +4,7 @@
 ## Author: Erenndriel
 ## Version: @project-version@
 ## SavedVariables: AlertCCOnMeDB
-## IconTexture: Interface\Icons\Spell_Nature_Polymorph
+## IconTexture: Interface\AddOns\AlertCCOnMe\Media\Icon
 ## AddonCompartmentFunc: AlertCCOnMe_OnCompartmentClick
 ## X-License: MIT
 

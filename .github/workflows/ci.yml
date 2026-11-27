@@ -76,7 +76,7 @@ jobs:
           files=$(unzip -Z1 .release/*.zip)
           fail() { echo "::error::$1"; exit 1; }
           grep -qvE '^AlertCCOnMe/' <<<"$files" && fail "files outside AlertCCOnMe/"
-          grep -E '^AlertCCOnMe/(tests|tools|templates|scripts|\.)' <<<"$files" && fail "development files in the package"
+          grep -E '^AlertCCOnMe/(docs|tests|tools|templates|scripts|\.)' <<<"$files" && fail "development files in the package"
           for required in AlertCCOnMe.toc LICENSE NOTICE; do
             grep -qx "AlertCCOnMe/$required" <<<"$files" || fail "missing AlertCCOnMe/$required"
           done

@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/images/banner.png" alt="Alert CC On Me" width="800"></p>
+
 # Alert CC On Me
 
 A World of Warcraft Retail addon (Midnight, 12.1) that warns you **while** an enemy is casting crowd control at you (Polymorph, Cyclone, Fear, Hex, Mind Control, Sleep Walk and more), so you still have time to interrupt, stun, or break line of sight before it lands.
@@ -10,6 +12,12 @@ A World of Warcraft Retail addon (Midnight, 12.1) that warns you **while** an en
 - **Choose where it runs:** open world, arena, battleground and dungeon each have their own on/off setting.
 - **Movable and scalable:** `/accm move`, then Shift+drag to move, Shift+mouse wheel to scale, right-click to lock.
 - **Lightweight:** it only reacts to enemy cast events, runs no per-frame handlers, and never touches the network.
+
+## Screenshots
+
+| The alert | Options | Spell list |
+|---|---|---|
+| ![Polymorph on YOU! above the player](docs/images/screenshots/alert.png) | ![Options page with Where to alert and Visual alert](docs/images/screenshots/settings.png) | ![Spell list grouped by class](docs/images/screenshots/spell-list.png) |
 
 ## How it works
 
