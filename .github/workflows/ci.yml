@@ -58,6 +58,10 @@ jobs:
       - name: busted
         run: docker run --rm -v "$PWD:/src" alertcconme-lua busted -o utfTerminal
 
+      # Each market's listing rules (markets/*.yml), e.g. CurseForge's 400x400 avatar.
+      - name: Market requirements
+        run: docker run --rm -v "$PWD:/src" alertcconme-lua scripts/markets.sh check
+
   package:
     name: Package
     runs-on: ubuntu-24.04
@@ -76,7 +80,7 @@ jobs:
           files=$(unzip -Z1 .release/*.zip)
           fail() { echo "::error::$1"; exit 1; }
           grep -qvE '^AlertCCOnMe/' <<<"$files" && fail "files outside AlertCCOnMe/"
-          grep -E '^AlertCCOnMe/(docs|tests|tools|templates|scripts|\.)' <<<"$files" && fail "development files in the package"
+          grep -E '^AlertCCOnMe/(docs|markets|tests|tools|templates|scripts|\.)' <<<"$files" && fail "development files in the package"
           for required in AlertCCOnMe.toc LICENSE NOTICE; do
             grep -qx "AlertCCOnMe/$required" <<<"$files" || fail "missing AlertCCOnMe/$required"
           done

@@ -1,0 +1,21 @@
+# CurseForge. Rules: https://support.curseforge.com/support/solutions/articles/9000197279-moderation-policies
+# A PR label with this file's name, in any case (e.g. CurseForge), picks this market
+# (see README, Releasing).
+name: CurseForge
+channels: [alpha, release]
+# The project ID line in the .toc: the packager uploads with it, the CurseForge app
+# matches installed copies by it.
+toc-id: X-Curse-Project-ID
+# The upload token, an environment secret in `beta` and `stable`.
+secret: CF_API_TOKEN
+
+# The project page, filled in by hand (no API) and checked on every PR.
+listing:
+  # Names must not hold the game name or a version.
+  title: { forbid: 'WoW|Warcraft|Midnight|[0-9]+\.[0-9]+' }
+  # Exactly 400x400; not a solid colour; no WebP.
+  avatar: { file: docs/images/logo-400.png, width: 400, height: 400 }
+  # Preferably one sentence, and not copied from the description.
+  summary: { file: markets/listing/summary.txt, max-sentences: 1 }
+  # What the addon adds or changes, in English first.
+  description: markets/listing/description.md

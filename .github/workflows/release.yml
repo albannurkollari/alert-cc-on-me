@@ -2,7 +2,8 @@ name: Release
 
 # Every merge into main (the promotion PR) that carries a feat, fix or breaking change
 # publishes stable vX.Y.Z after approval in the `stable` environment: a tag, a GitHub
-# Release and uploads to CurseForge, Wago and WoWInterface. The version comes from the
+# Release and uploads to CurseForge, Wago and WoWInterface, or only to the markets named
+# by labels on the promotion PR (markets/<label>.yml). The version comes from the
 # Conventional Commits since the last stable tag. Merges into beta ship as untagged alpha
 # builds instead (alpha.yml).
 on:
@@ -49,51 +50,101 @@ jobs:
     if: needs.version.outputs.tag != ''
     uses: ./.github/workflows/ci.yml
 
-  publish:
-    name: Publish ${{ needs.version.outputs.tag }}
-    needs: [version, test]
+  plan:
+    name: Pick markets
+    needs: version
+    if: needs.version.outputs.tag != ''
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      # Reads the labels of the promotion PR this merge came from.
+      pull-requests: read
+    outputs:
+      targets: ${{ steps.plan.outputs.targets }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # Market labels on the promotion PR (markets/<label>.yml) pick those markets only.
+      # GitHub always gets the release: its tag is what the next version counts from.
+      - id: plan
+        name: Read market labels
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          labels=$(gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/pulls" \
+            --jq ".[] | select(.merge_commit_sha == \"$GITHUB_SHA\") | .labels[].name")
+          # shellcheck disable=SC2086 # one argument per label
+          markets=$(scripts/markets.sh plan release $labels 2>>"$GITHUB_STEP_SUMMARY")
+          targets=$(jq -c '[{market: "github", name: "GitHub"}] + .' <<<"$markets")
+          echo "targets=$targets" >> "$GITHUB_OUTPUT"
+
+  # One job per market, so a failed upload is retried alone ("Re-run failed jobs")
+  # without uploading the same release twice to the markets that took it. All jobs wait
+  # on the same `stable` approval.
+  publish:
+    name: ${{ needs.version.outputs.tag }} to ${{ matrix.name }}
+    needs: [version, test, plan]
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.targets) }}
     # Holds the upload tokens and waits for approval.
     environment: stable
     permissions:
       contents: write
     env:
-      # Sites without a token or a project ID in the .toc are skipped.
-      CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-      WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
-      WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
-      GH_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Only this job's target gets a token, so the packager publishes there alone.
+      CF_API_TOKEN: ${{ matrix.market == 'curseforge' && secrets.CF_API_TOKEN || '' }}
+      WAGO_API_TOKEN: ${{ matrix.market == 'wago' && secrets.WAGO_API_TOKEN || '' }}
+      WOWI_API_TOKEN: ${{ matrix.market == 'wowinterface' && secrets.WOWI_API_TOKEN || '' }}
+      GH_API_TOKEN: ${{ matrix.market == 'github' && secrets.GITHUB_TOKEN || '' }}
+      MARKET: ${{ matrix.market }}
+      TAG: ${{ needs.version.outputs.tag }}
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      # The packager reads the version from the tag on HEAD, and the GitHub Release it
-      # creates attaches to that tag. Checked again here: main may move on during approval.
-      - id: tag
-        name: Tag
-        env:
-          TAG: ${{ needs.version.outputs.tag }}
+      # Checked again here: main may move on during approval.
+      - id: tip
+        name: Check branch tip
         run: |
           if [ "$(git ls-remote origin refs/heads/main | cut -f1)" != "$GITHUB_SHA" ]; then
             echo "No release: main moved on while waiting; its run releases these commits." >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
           echo "current=true" >> "$GITHUB_OUTPUT"
+
+      - name: Check token
+        if: steps.tip.outputs.current == 'true' && matrix.market != 'github'
+        run: |
+          secret=$(yq -r .secret "markets/$MARKET.yml")
+          if [ -z "${!secret}" ]; then
+            echo "::error::No $secret secret in the stable environment."
+            exit 1
+          fi
+
+      # The packager reads the version from the tag on HEAD. The GitHub job pushes it, and
+      # the GitHub Release it creates attaches to it; market jobs only need it locally.
+      - name: Tag
+        if: steps.tip.outputs.current == 'true'
+        run: |
+          git fetch --quiet origin "refs/tags/$TAG:refs/tags/$TAG" 2>/dev/null || true
           if ! git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git tag -a "$TAG" -m "$TAG"
-            git push origin "$TAG"
+          fi
+          if [ "$MARKET" = github ]; then
+            git push --quiet origin "refs/tags/$TAG"
           fi
 
       # The packager skips a branch push whose commit is tagged, expecting a separate
       # build for the tag push, but a tag pushed with GITHUB_TOKEN starts no workflow.
       # So run the same scripts BigWigsMods/packager@v2 runs, presented as that tag build.
       - name: Package and publish
-        if: steps.tag.outputs.current == 'true'
-        env:
-          TAG: ${{ needs.version.outputs.tag }}
+        if: steps.tip.outputs.current == 'true'
         run: |
           git clone --quiet --depth 1 --branch v2 https://github.com/BigWigsMods/packager.git "$RUNNER_TEMP/packager"
           export GITHUB_REF="refs/tags/$TAG" GITHUB_REF_NAME="$TAG"
