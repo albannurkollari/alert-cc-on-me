@@ -120,6 +120,10 @@ eventFrame:SetScript("OnEvent", function(self, event, arg1)
 		self:RegisterEvent("PLAYER_LOGIN")
 	elseif event == "PLAYER_LOGIN" then
 		local version = C_AddOns.GetAddOnMetadata(addonName, "Version") or "?"
+		-- The packager writes the tag here; a git checkout still has the placeholder.
+		if version:find("^@") then
+			version = "dev"
+		end
 		Util.Print(L.Loaded:format(version))
 	end
 end)

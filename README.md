@@ -56,6 +56,17 @@ David, Zira and Mark ship with the addon. A voice pack is a small add-on that ca
 | `tools/generate_voices.ps1` | Renders voice clips with Windows speech voices and ffmpeg |
 | `install.sh` | Runs the tests, then copies the addon into your AddOns folder (`WOW_ADDONS` overrides the path) |
 
+## Releasing
+
+`beta` is the default branch and takes every PR. `main` holds stable releases. Releases need no manual tagging: every merge works out the next version from the [Conventional Commits](https://www.conventionalcommits.org/) since the last stable release (`feat` → minor, `fix`/`perf` → patch, `!` → major), tags it and publishes it with the [BigWigs packager](https://github.com/BigWigsMods/packager). Merges that hold only `docs`, `chore` or `test` commits publish nothing.
+
+| Merge into | Publishes | Approval |
+|---|---|---|
+| `beta` | `vX.Y.Z-beta.N` to the beta channel | none |
+| `main` (a PR from `beta`, merge commit) | `vX.Y.Z` to the stable channel | required in the `stable` environment |
+
+Every PR is checked for commit format, luacheck, the busted suite and a package build, which is attached to the run so you can try it in game. Upload tokens (`CF_API_TOKEN`, `WAGO_API_TOKEN`, `WOWI_API_TOKEN`) live in the `beta` and `stable` environments. Every release is also published on GitHub Releases.
+
 ## License
 
 [Apache-2.0](LICENSE). See [`AlertCCOnMe/NOTICE`](AlertCCOnMe/NOTICE) for attributions.

@@ -1,0 +1,72 @@
+name: Release
+
+# Every merge into beta or main that carries a feat, fix or breaking change publishes:
+# vX.Y.Z-beta.N from beta, vX.Y.Z from main (after approval in the `stable` environment).
+# Tagging and publishing happen in this run because a tag or release made with
+# GITHUB_TOKEN does not trigger other workflows.
+on:
+  push:
+    branches: [beta, main]
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    name: Next version
+    runs-on: ubuntu-24.04
+    outputs:
+      tag: ${{ steps.next.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - id: next
+        name: Derive from commits
+        run: |
+          tag=$(scripts/next-version.sh "$GITHUB_REF_NAME")
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "${tag:-No release: no feat, fix or breaking change since the last stable tag.}" >> "$GITHUB_STEP_SUMMARY"
+
+  test:
+    needs: version
+    if: needs.version.outputs.tag != ''
+    uses: ./.github/workflows/ci.yml
+
+  publish:
+    name: Publish ${{ needs.version.outputs.tag }}
+    needs: [version, test]
+    runs-on: ubuntu-24.04
+    # Holds the upload tokens; `stable` waits for approval.
+    environment: ${{ github.ref_name == 'main' && 'stable' || 'beta' }}
+    permissions:
+      contents: write
+    env:
+      # Sites without a token or a project ID in the .toc are skipped.
+      CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
+      WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
+      GH_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # The packager reads the version and channel (beta/release) from the tag on HEAD.
+      - name: Tag
+        env:
+          TAG: ${{ needs.version.outputs.tag }}
+        run: |
+          if ! git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git tag -a "$TAG" -m "$TAG"
+            git push origin "$TAG"
+          fi
+
+      - uses: BigWigsMods/packager@v2

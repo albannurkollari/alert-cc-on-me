@@ -2,7 +2,7 @@
 ## Title: Alert CC On Me
 ## Notes: Visual and sound warning when an enemy is casting crowd control on you.
 ## Author: Erenndriel
-## Version: 0.1.0
+## Version: @project-version@
 ## SavedVariables: AlertCCOnMeDB
 ## IconTexture: Interface\Icons\Spell_Nature_Polymorph
 ## AddonCompartmentFunc: AlertCCOnMe_OnCompartmentClick

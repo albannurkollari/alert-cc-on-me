@@ -5,6 +5,7 @@ move-folders:
   AlertCCOnMe/AlertCCOnMe: AlertCCOnMe
 
 ignore:
+  - scripts
   - tests
   - tools
   - templates
