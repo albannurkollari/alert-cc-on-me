@@ -60,8 +60,8 @@ local function HandleSlash(message)
 	elseif command == "spells" then
 		ns.SettingsUI.OpenSpellList()
 	elseif command == "add" then
-		local _, message = ns.SpellList.Add(rest)
-		Util.Print(message)
+		local _, result = ns.SpellList.Add(rest)
+		Util.Print(result)
 	elseif command == "remove" then
 		local spellID = tonumber(rest)
 		if spellID and ns.SpellList.IsListed(spellID) then

@@ -1,8 +1,5 @@
 local _, ns = ...
 
-local Util = ns.Util
-local L = ns.L
-
 local Sound = {}
 ns.Sound = Sound
 
