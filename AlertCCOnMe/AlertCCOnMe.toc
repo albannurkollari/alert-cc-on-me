@@ -8,6 +8,7 @@
 ## AddonCompartmentFunc: AlertCCOnMe_OnCompartmentClick
 ## X-License: MIT
 ## X-Curse-Project-ID: 1835896
+## X-Wago-ID: x61xDBN1
 
 Core\Init.lua
 Core\Defaults.lua
