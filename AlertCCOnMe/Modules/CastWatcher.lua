@@ -150,7 +150,7 @@ function CastWatcher.Evaluate(unit, allowSound)
 	local played = false
 	if allowSound and db.Sound.PreCast
 		and CastEval.ShouldPlaySound(db.Sound.Mode, db.RequireCC, eval, isPlayer) then
-		played = ns.Sound.PlayPreCast(cast, eval)
+		played = ns.Sound.PlayPreCast()
 	end
 	DebugReport(unit, cast, eval, played)
 end

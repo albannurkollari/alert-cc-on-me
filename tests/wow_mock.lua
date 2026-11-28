@@ -153,9 +153,15 @@ function InCombatLockdown() return M.inCombat end
 function IsShiftKeyDown() return M.shift == true end
 function IsInInstance() return M.instanceType ~= "none", M.instanceType end
 function GetBuildInfo() return "12.1.5", "70961" end
-function PlaySoundFile(path, channel)
-	assertNoSecrets("PlaySoundFile", path, channel)
-	M.sounds[#M.sounds + 1] = path
+function PlaySound(soundKitID, channel)
+	assertNoSecrets("PlaySound", soundKitID, channel)
+	assert(type(soundKitID) == "number", "PlaySound needs a sound kit ID, got " .. tostring(soundKitID))
+	M.sounds[#M.sounds + 1] = soundKitID
+end
+function PlaySoundFile(soundFile, channel)
+	assertNoSecrets("PlaySoundFile", soundFile, channel)
+	assert(type(soundFile) == "number", "only game sound file IDs, got " .. tostring(soundFile))
+	M.sounds[#M.sounds + 1] = "file:" .. soundFile
 end
 
 local function U(unit)

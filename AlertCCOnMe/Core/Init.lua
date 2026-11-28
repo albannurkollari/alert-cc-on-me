@@ -2,7 +2,6 @@ local addonName, ns = ...
 
 ns.ADDON_NAME = addonName
 ns.PREFIX = "|cff33ff99AlertCCOnMe|r"
-ns.MEDIA = "Interface\\AddOns\\" .. addonName .. "\\Media\\"
 
 ns.MAX_NAMEPLATES = 40
 ns.MAX_ARENA = 5

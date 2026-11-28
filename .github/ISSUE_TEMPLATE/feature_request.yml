@@ -1,5 +1,5 @@
 name: Feature request
-description: Suggest an idea, a missing CC spell or a voice pack improvement.
+description: Suggest an idea, a missing CC spell or a sound improvement.
 labels: [feat]
 body:
   - type: textarea
@@ -23,7 +23,7 @@ body:
       label: Area
       options:
         - On-screen alert
-        - Voice callouts / voice packs
+        - Alert sound
         - Spell list (missing or wrong CC spell)
         - Settings
         - Other

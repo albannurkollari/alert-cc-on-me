@@ -18,29 +18,6 @@ describe("addon", function()
 end)
 
 describe("data", function()
-	it("every voice pack has both clips for every callout", function()
-		local ns = helper.newClient().ns
-		local keys = {}
-		for _, entry in ipairs(ns.CastableCC) do
-			keys[entry.callout] = true
-		end
-		for _, key in pairs(ns.GenericCallout) do
-			keys[key] = true
-		end
-		local missing = {}
-		for _, pack in ipairs(ns.VoicePacks) do
-			for key in pairs(keys) do
-				for _, clip in ipairs({ key, key .. "OnYou" }) do
-					local path = ("%sMedia/Voice/%s/%s.ogg"):format(helper.ADDON, pack.Value, clip)
-					if not helper.exists(path) then
-						missing[#missing + 1] = path
-					end
-				end
-			end
-		end
-		assert.are.same({}, missing)
-	end)
-
 	-- The addon folder carries its own copy so a plain folder install keeps the license.
 	it("the addon's LICENSE matches the repo's", function()
 		assert.are.equal(helper.read("LICENSE"), helper.read(helper.ADDON .. "LICENSE"))

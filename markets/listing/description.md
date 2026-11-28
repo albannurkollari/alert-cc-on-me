@@ -3,7 +3,7 @@ Alert CC On Me warns you **while** an enemy is casting crowd control at you (Pol
 ## Features
 
 - **On-screen alert:** "Polymorph on YOU!" appears only when the cast is crowd control *and* aimed at you, in arena too.
-- **Voice callouts:** "Sheep on you!", "Cyclone on you!" in built-in voices. Other addons can register more voice packs.
+- **Alert sound:** pick one of the game's own sounds (raid warning, boss whisper, ready check, alarm clock...). The addon ships no audio, so it stays tiny.
 - **Spell list by class:** each crowd-control spell sits under its caster's class. Turn spells on or off, remove them, or add your own (`/accm add 12345 monk`).
 - **Choose where it runs:** open world, arena, battleground and dungeon each have their own on/off setting.
 - **Movable and scalable:** `/accm move`, then Shift+drag to move, Shift+mouse wheel to scale, right-click to lock.
@@ -11,14 +11,14 @@ Alert CC On Me warns you **while** an enemy is casting crowd control at you (Pol
 
 ## How it works
 
-Since Midnight, the game hands addons enemy cast data as secret values that an addon can pass to the UI but cannot read. The alert is drawn straight from the game's own answers to "is it crowd control?" and "is it aimed at me?", so it shows only when both are true. The voice callout needs a readable spell, so in arena and other restricted content it plays only for spells the game keeps readable; the on-screen alert works everywhere.
+Since Midnight, the game hands addons enemy cast data as secret values that an addon can pass to the UI but cannot read. The alert is drawn straight from the game's own answers to "is it crowd control?" and "is it aimed at me?", so it shows only when both are true. The sound needs a readable spell, so in arena and other restricted content it plays only for spells the game keeps readable, unless you pick the any-cast sound mode; the on-screen alert works everywhere.
 
 Keep enemy nameplates turned on: they're how the addon sees nearby enemies.
 
 ## Commands
 
 - `/accm`: open the settings
-- `/accm test`: preview the alert and voice
+- `/accm test`: preview the alert and sound
 - `/accm move` / `/accm lock`: move and scale the alert / lock it
 - `/accm spells`: open the spell list
 - `/accm on` / `/accm off` / `/accm status`: enable, disable, show state
